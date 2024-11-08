@@ -1,7 +1,7 @@
 export interface Story {
     _id: string;
     userId: string;
-    title: string;
+    title?: string;
     rawText: string;
     timelineJson: any;
     embedding: number[];

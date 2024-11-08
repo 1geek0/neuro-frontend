@@ -122,7 +122,9 @@ export async function processStoryToTimeline(text: string) {
         }]
     })
 
-    const responseText: string = response.content[0].text.trim();
+    const responseText: string = response.content[0].type === 'text'
+      ? response.content[0].text
+      : '';
     const jsonStart = responseText.indexOf('{');
     const jsonEnd = responseText.lastIndexOf('}');
     const jsonStr = jsonStart >= 0 && jsonEnd >= 0 ? responseText.slice(jsonStart, jsonEnd + 1) : '{}';
@@ -136,7 +138,7 @@ export async function processStoryToTimeline(text: string) {
 export async function generateTitle(story: string): Promise<string> {
   try {
     const response = await anthropic.messages.create({
-      model: "claude-3-sonnet-20240229",
+      model: "claude-3-5-haiku-20241022",
       max_tokens: 50,
       messages: [{
         role: "user",
@@ -148,7 +150,10 @@ Generate only the title, nothing else.`
       }]
     });
 
-    return response.content[0].text.trim();
+    const responseText = response.content[0].type === 'text'
+      ? response.content[0].text
+      : '';
+    return responseText.trim();
   } catch (error) {
     console.error('Error generating title:', error);
     return "My Meningioma Journey"; // Fallback title
