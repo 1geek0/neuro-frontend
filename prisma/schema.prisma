@@ -17,9 +17,9 @@ datasource db {
 
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  sessionId String   @unique // Anonymous session ID
-  auth0Id   String?  @unique // Optional and unique Auth0 user ID
-  username  String?  // Auth0 username/nickname
+  sessionId String   @unique
+  auth0Id   String   @unique
+  username  String?
   stories   Story[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

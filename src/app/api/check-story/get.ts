@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getOrCreateUser } from '@/lib/db'
 import prisma from '@/lib/db'
 
 export async function GET(req: NextRequest) {
     try {
-        const sessionId = req.cookies.get('sessionId')?.value
-        if (!sessionId) {
+        const auth0Id = req.headers.get('x-auth-user-id')
+        if (!auth0Id) {
             return NextResponse.json({ hasStory: false })
         }
 
-        const { user } = await getOrCreateUser(sessionId)
+        const user = await prisma.user.findUnique({
+            where: { auth0Id }
+        })
+
+        if (!user) {
+            return NextResponse.json({ hasStory: false })
+        }
+
         const story = await prisma.story.findFirst({
             where: { userId: user.id }
         })

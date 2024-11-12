@@ -7,35 +7,21 @@ export default prisma
 
 export async function getOrCreateUser(sessionId?: string, auth0Id?: string, username?: string) {
   try {
-    if (!sessionId) {
-      sessionId = uuidv4()
-      console.log('Generated new sessionId:', sessionId)
+    // If no auth0Id is provided, throw an error
+    if (!auth0Id) {
+      throw new Error('auth0Id is required')
     }
 
-    // First try to find the user by sessionId or auth0Id
-    let user = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { sessionId: sessionId },
-          ...(auth0Id ? [{ auth0Id: auth0Id }] : [])
-        ]
-      }
+    // First try to find the user by auth0Id
+    let user = await prisma.user.findUnique({
+      where: { auth0Id }
     })
 
     // If user doesn't exist, create them
     if (!user) {
       user = await prisma.user.create({
         data: {
-          sessionId: sessionId,
-          auth0Id: auth0Id || null,
-          username: username || null
-        }
-      })
-    } else if (auth0Id && !user.auth0Id) {
-      // If user exists but doesn't have auth0Id, update them
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: {
+          sessionId: sessionId || uuidv4(), // Generate new sessionId if not provided
           auth0Id,
           username: username || null
         }
@@ -46,7 +32,7 @@ export async function getOrCreateUser(sessionId?: string, auth0Id?: string, user
       throw new Error('Failed to create or retrieve user')
     }
 
-    return { user, sessionId }
+    return { user, sessionId: user.sessionId }
   } catch (error) {
     console.error('Error in getOrCreateUser:', error instanceof Error ? error.message : String(error))
     throw error

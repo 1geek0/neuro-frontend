@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma, { findSimilarStories } from '@/lib/db'
-import { getOrCreateUser } from '@/lib/db'
 
 export async function GET(req: NextRequest) {
     try {
-        const sessionId = req.cookies.get('sessionId')?.value
-        if (!sessionId) {
+        const auth0Id = req.headers.get('x-auth-user-id')
+        if (!auth0Id) {
             return NextResponse.json([])
         }
 
-        const { user } = await getOrCreateUser(sessionId)
+        const user = await prisma.user.findUnique({
+            where: { auth0Id }
+        })
+
+        if (!user) {
+            return NextResponse.json([])
+        }
+
         const userStory = await prisma.story.findFirst({
             where: { userId: user.id }
         })
@@ -17,9 +23,8 @@ export async function GET(req: NextRequest) {
         if (!userStory?.embedding) {
             return NextResponse.json([])
         }
-        // Find similar stories using vector similarity
-        const similarStories = await findSimilarStories(userStory.embedding)
 
+        const similarStories = await findSimilarStories(userStory.embedding)
         return NextResponse.json(similarStories)
     } catch (error) {
         console.error('Error fetching similar stories:', error)
