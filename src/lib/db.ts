@@ -22,11 +22,8 @@ export async function getOrCreateUser(sessionId?: string, auth0Id?: string, user
       }
     })
 
-    console.log('Find result:', user)
-
     // If user doesn't exist, create them
     if (!user) {
-      console.log('User not found, creating new user')
       user = await prisma.user.create({
         data: {
           sessionId: sessionId,
@@ -34,7 +31,6 @@ export async function getOrCreateUser(sessionId?: string, auth0Id?: string, user
           username: username || null
         }
       })
-      console.log('Create result:', user)
     } else if (auth0Id && !user.auth0Id) {
       // If user exists but doesn't have auth0Id, update them
       user = await prisma.user.update({
