@@ -4,20 +4,29 @@ export function useAuthenticatedFetch() {
     const { getAccessTokenSilently, getIdTokenClaims } = useAuth0()
 
     return async (url: string, options: RequestInit = {}) => {
-        const [accessToken, idTokenClaims] = await Promise.all([
-            getAccessTokenSilently(),
-            getIdTokenClaims()
-        ]);
+        try {
+            const [accessToken, idTokenClaims] = await Promise.all([
+                getAccessTokenSilently(),
+                getIdTokenClaims()
+            ]);
 
-        const headers = {
-            ...options.headers,
-            'Authorization': `Bearer ${accessToken}`,
-            'x-id-token': idTokenClaims.__raw
+            if (!idTokenClaims?.__raw) {
+                throw new Error('Failed to get ID token')
+            }
+
+            const headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${accessToken}`,
+                'x-id-token': idTokenClaims.__raw
+            }
+
+            return fetch(url, {
+                ...options,
+                headers
+            })
+        } catch (error) {
+            console.error('Error in authenticated fetch:', error)
+            throw error
         }
-
-        return fetch(url, {
-            ...options,
-            headers
-        })
     }
 } 
