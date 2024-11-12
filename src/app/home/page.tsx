@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Modal } from '@/components/Modal'
+import { useAuth0 } from '@auth0/auth0-react'
+import { LogOut } from 'lucide-react'
+import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 
 interface Story {
     id: string
@@ -21,11 +24,13 @@ interface Research {
 }
 
 export default function HomePage() {
+    useAuthRedirect()
     const [similarStories, setSimilarStories] = useState<Story[]>([])
     const [research, setResearch] = useState<Research[]>([])
     const [state, setState] = useState('')
     const router = useRouter()
     const [selectedStory, setSelectedStory] = useState<Story | null>(null)
+    const { logout } = useAuth0()
 
     useEffect(() => {
         const fetchData = async () => {
@@ -52,9 +57,40 @@ export default function HomePage() {
         fetchData()
     }, [])
 
+    const handleLogout = async () => {
+        try {
+            // Clear session cookie - fixed to include domain and secure flags
+            document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
+
+            // Auth0 logout and redirect
+            await logout({
+                logoutParams: {
+                    returnTo: window.location.origin
+                }
+            })
+
+            // Force navigation to home
+            router.push('/')
+        } catch (error) {
+            console.error('Error during logout:', error)
+            // Fallback: force navigation even if Auth0 logout fails
+            router.push('/')
+        }
+    }
+
     return (
         <main className="min-h-screen bg-gradient-to-b from-white to-gray-50 py-8">
             <div className="container mx-auto px-4">
+                <div className="flex justify-end mb-6">
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-300 shadow-sm"
+                    >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                    </button>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Similar Stories Section */}
                     <section className="bg-white rounded-lg shadow p-6">

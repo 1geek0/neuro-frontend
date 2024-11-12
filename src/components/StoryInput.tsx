@@ -1,31 +1,45 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Mic, MicOff, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useAuth0 } from '@auth0/auth0-react'
+import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
 
 export default function StoryInput() {
   const [story, setStory] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
-
+  const { loginWithPopup, isAuthenticated, isLoading, getAccessTokenSilently, getIdTokenClaims } = useAuth0()
+  const authenticatedFetch = useAuthenticatedFetch()
 
   const handleSubmit = async () => {
     if (!story.trim() || isSubmitting) return;
 
     try {
-      setIsSubmitting(true)
-      const response = await fetch('/api/story', {
+      setIsSubmitting(true);
+
+      if (!isAuthenticated) {
+        await loginWithPopup({
+          authorizationParams: {
+            screen_hint: 'signup',
+          }
+        });
+      }
+
+      const response = await authenticatedFetch('/api/story', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ story }),
-      })
+      });
 
-      if (!response.ok) throw new Error('Failed to submit story')
+      if (!response.ok) {
+        throw new Error('Failed to submit story');
+      }
 
-      router.push('/home')
+      router.push('/home');
     } catch (error) {
       console.error('Error submitting story:', error)
       alert('Failed to submit story. Please try again.')
@@ -33,6 +47,8 @@ export default function StoryInput() {
       setIsSubmitting(false)
     }
   }
+
+  const isButtonDisabled = !story.trim() || isSubmitting || isLoading;
 
   return (
     <div className="w-full max-w-3xl mx-auto p-4 space-y-4">
@@ -47,26 +63,14 @@ export default function StoryInput() {
           placeholder="Share your journey..."
           className="w-full h-64 p-4 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500 text-black"
         />
-
-        {/*<button*/}
-        {/*  onClick={toggleRecording}*/}
-        {/*  className={`absolute bottom-4 right-4 p-2 rounded-full */}
-        {/*    ${isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'}`}*/}
-        {/*>*/}
-        {/*  {isRecording ? (*/}
-        {/*    <MicOff className="w-5 h-5 text-white" />*/}
-        {/*  ) : (*/}
-        {/*    <Mic className="w-5 h-5 text-white" />*/}
-        {/*  )}*/}
-        {/*</button>*/}
       </div>
 
       <div className="flex justify-end">
         <button
           onClick={handleSubmit}
-          disabled={!story.trim() || isSubmitting}
+          disabled={isButtonDisabled}
           className={`px-6 py-2 rounded-lg text-white font-medium
-            ${isSubmitting || !story.trim()
+            ${isButtonDisabled
               ? 'bg-gray-400 cursor-not-allowed'
               : 'bg-green-500 hover:bg-green-600'}`}
         >

@@ -5,11 +5,24 @@ import prisma from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   try {
-    const { story } = await req.json()
+    const auth0Id = req.headers.get('x-auth-user-id')
+    const username = req.headers.get('x-auth-username')
 
-    // Get or create anonymous user
+    if (!auth0Id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const { story } = await req.json()
     const sessionId = req.cookies.get('sessionId')?.value
-    const { user, sessionId: newSessionId } = await getOrCreateUser(sessionId)
+
+    const { user, sessionId: newSessionId } = await getOrCreateUser(
+      sessionId,
+      auth0Id,
+      username || undefined
+    )
 
     // Process the story asynchronously
     const [timelineJson, embedding, title] = await Promise.all([

@@ -5,18 +5,56 @@ import { v4 as uuidv4 } from 'uuid'
 const prisma = new PrismaClient()
 export default prisma
 
-export async function getOrCreateUser(sessionId?: string) {
-  if (!sessionId) {
-    sessionId = uuidv4()
+export async function getOrCreateUser(sessionId?: string, auth0Id?: string, username?: string) {
+  try {
+    if (!sessionId) {
+      sessionId = uuidv4()
+      console.log('Generated new sessionId:', sessionId)
+    }
+
+    // First try to find the user by sessionId or auth0Id
+    let user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { sessionId: sessionId },
+          ...(auth0Id ? [{ auth0Id: auth0Id }] : [])
+        ]
+      }
+    })
+
+    console.log('Find result:', user)
+
+    // If user doesn't exist, create them
+    if (!user) {
+      console.log('User not found, creating new user')
+      user = await prisma.user.create({
+        data: {
+          sessionId: sessionId,
+          auth0Id: auth0Id || null,
+          username: username || null
+        }
+      })
+      console.log('Create result:', user)
+    } else if (auth0Id && !user.auth0Id) {
+      // If user exists but doesn't have auth0Id, update them
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          auth0Id,
+          username: username || null
+        }
+      })
+    }
+
+    if (!user) {
+      throw new Error('Failed to create or retrieve user')
+    }
+
+    return { user, sessionId }
+  } catch (error) {
+    console.error('Error in getOrCreateUser:', error instanceof Error ? error.message : String(error))
+    throw error
   }
-
-  const user = await prisma.user.upsert({
-    where: { sessionId },
-    update: {},
-    create: { sessionId }
-  })
-
-  return { user, sessionId }
 }
 
 export async function createStory(userId: string, rawText: string, timelineJson: any, embedding: number[]) {
