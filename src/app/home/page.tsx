@@ -7,6 +7,7 @@ import { Modal } from '@/components/Modal'
 import { useAuth0 } from '@auth0/auth0-react'
 import { LogOut } from 'lucide-react'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
+import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
 
 interface Story {
     id: string
@@ -31,13 +32,16 @@ export default function HomePage() {
     const router = useRouter()
     const [selectedStory, setSelectedStory] = useState<Story | null>(null)
     const { logout } = useAuth0()
+    const authenticatedFetch = useAuthenticatedFetch()
 
     useEffect(() => {
+        let isMounted = true
+
         const fetchData = async () => {
             try {
                 const [storiesRes, researchRes] = await Promise.all([
-                    fetch('/api/similar-stories'),
-                    fetch('/api/research')
+                    authenticatedFetch('/api/similar-stories'),
+                    authenticatedFetch('/api/research')
                 ])
 
                 if (!storiesRes.ok || !researchRes.ok) {
@@ -47,14 +51,20 @@ export default function HomePage() {
                 const stories = await storiesRes.json()
                 const research = await researchRes.json()
 
-                setSimilarStories(stories)
-                setResearch(research)
+                if (isMounted) {
+                    setSimilarStories(stories)
+                    setResearch(research)
+                }
             } catch (error) {
                 console.error('Error fetching data:', error)
             }
         }
 
         fetchData()
+
+        return () => {
+            isMounted = false
+        }
     }, [])
 
     const handleLogout = async () => {
