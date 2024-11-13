@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Auth0Provider } from '@/components/Auth0Provider'
+import { Auth0Provider } from '@auth0/auth0-react'
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -24,10 +24,22 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  if (!process.env.NEXT_PUBLIC_AUTH0_DOMAIN || !process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID) {
+    throw new Error('Missing Auth0 environment variables');
+  }
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Auth0Provider>
+        <Auth0Provider
+          domain={process.env.NEXT_PUBLIC_AUTH0_DOMAIN}
+          clientId={process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID}
+          authorizationParams={{
+            redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
+            audience: "https://dev-yh7epi8p8mkinedt.us.auth0.com/api/v2/",
+            scope: "openid profile email offline_access"
+          }}
+        >
           {children}
         </Auth0Provider>
       </body>
