@@ -5,8 +5,10 @@ import { Mic, MicOff, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
-
-export default function StoryInput() {
+interface StoryInputProps {
+  redirectPath: string;
+}
+export default function StoryInput({ redirectPath }: StoryInputProps)  {
   const [story, setStory] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
