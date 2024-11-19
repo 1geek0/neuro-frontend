@@ -62,7 +62,15 @@ export default function StoryInput({ redirectPath }: StoryInputProps)  {
         <textarea
           value={story}
           onChange={(e) => setStory(e.target.value)}
-          placeholder="Share your journey..."
+          placeholder="I was diagnosed with a meningioma in [year]. Here's what happened:
+The first symptoms I noticed were...
+My doctor ordered these tests...
+I had surgery on [date]. The type of surgery was...
+After the surgery, I experienced...
+My current medications include...
+Some background about my overall health:
+What I've learned from this experience:
+Advice I'd give to others facing a similar diagnosis:"
           className="w-full h-64 p-4 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500 text-black"
         />
       </div>
