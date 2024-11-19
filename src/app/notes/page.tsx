@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { PencilIcon, PlusCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
@@ -23,22 +23,23 @@ const StoryNotes = () => {
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
 
-  useEffect(() => {
-    fetchStories();
-  }, []);
-
-  const fetchStories = async () => {
+  const fetchStories = useCallback(async () => {
     try {
       const response = await authenticatedFetch('/api/stories');
       if (!response.ok) throw new Error('Failed to fetch stories');
       const data = await response.json();
+      console.log('Fetched stories:', data); // Debugging line
       setStories(data);
     } catch (error) {
       console.error('Error fetching stories:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [authenticatedFetch]);
+
+  useEffect(() => {
+    fetchStories(); // Fetch stories on component mount
+  }, [fetchStories]);
 
   const handleAddStory = () => {
     router.push('/notes/add');
@@ -134,7 +135,7 @@ const StoryNotes = () => {
 
           {stories.length === 0 && (
             <div className="text-center py-12 bg-white rounded-lg border">
-              <p className="text-gray-500">No stories yet. Click "Add New Story" to get started.</p>
+              <p className="text-gray-500">No stories yet. Click &quot;Add New Story&quot; to get started.</p>
             </div>
           )}
         </div>

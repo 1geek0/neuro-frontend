@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
+import StoryInput from '@/components/StoryInput';
 
 export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<Response> {
+  const resolvedParams = await params;
   try {
-    const auth0Id = req.headers.get('x-auth-user-id');
+    const auth0Id = request.headers.get('x-auth-user-id');
     if (!auth0Id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -14,7 +16,7 @@ export async function PUT(
       );
     }
 
-    const { rawText } = await req.json();
+    const { rawText } = await request.json();
     if (!rawText) {
       return NextResponse.json(
         { error: 'Raw text is required' },
@@ -22,7 +24,6 @@ export async function PUT(
       );
     }
 
-    // Get user to verify ownership
     const user = await prisma.user.findUnique({
       where: { auth0Id }
     });
@@ -34,11 +35,10 @@ export async function PUT(
       );
     }
 
-    // Update the story
     const updatedStory = await prisma.story.updateMany({
       where: {
-        id: params.id,
-        userId: user.id // Ensure user owns the story
+        id: resolvedParams.id,
+        userId: user.id
       },
       data: {
         rawText,
