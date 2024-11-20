@@ -1,13 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Mic, MicOff, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
-
-export default function StoryInput() {
-  const [story, setStory] = useState('')
+interface StoryInputProps {
+  redirectPath: string;
+  defaultValue?: string;
+}
+export default function StoryInput({ redirectPath, defaultValue }: StoryInputProps)  {
+  const [story, setStory] = useState<string>(defaultValue || '')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
   const { loginWithPopup, isAuthenticated, isLoading, getAccessTokenSilently, getIdTokenClaims } = useAuth0()
