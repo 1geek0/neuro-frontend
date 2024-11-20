@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { PencilIcon, PlusCircle, Loader2, ArrowLeft, Lock } from 'lucide-react';
+import { PencilIcon, PlusCircle, Loader2, ArrowLeft, Lock, Rocket } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
@@ -20,6 +20,8 @@ const StoryNotes = () => {
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [selectedStories, setSelectedStories] = useState<Story[]>([]);
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
 
@@ -77,6 +79,19 @@ const StoryNotes = () => {
     }
   };
 
+  const handlePublish = () => {
+    console.log('Publishing stories:', selectedStories);
+    setIsPublishing(false);
+  };
+
+  const toggleStorySelection = (story: Story) => {
+    if (selectedStories.includes(story)) {
+      setSelectedStories(selectedStories.filter(s => s.id !== story.id));
+    } else {
+      setSelectedStories([...selectedStories, story]);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -104,13 +119,22 @@ const StoryNotes = () => {
             </button>
             <h1 className="text-2xl font-bold text-gray-900">My Story Notes</h1>
           </div>
-          <button
-            onClick={handleAddStory}
-            className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-          >
-            <PlusCircle className="w-5 h-5" />
-            Add New Story
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleAddStory}
+              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+            >
+              <PlusCircle className="w-5 h-5" />
+              Add New Story
+            </button>
+            <button
+              onClick={() => setIsPublishing(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              <Rocket className="w-5 h-5" />
+              Publish Your Story
+            </button>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -137,6 +161,15 @@ const StoryNotes = () => {
                 </button>
               </div>
               <p className="text-gray-700 whitespace-pre-wrap">{story.rawText}</p>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={selectedStories.includes(story)}
+                  onChange={() => toggleStorySelection(story)}
+                  className="mr-2"
+                />
+                <label className="text-gray-600">Select for publishing</label>
+              </div>
             </div>
           ))}
 
@@ -169,6 +202,42 @@ const StoryNotes = () => {
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
               >
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isPublishing && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-xl font-semibold mb-4">Publish Your Story</h3>
+            <p className="mb-4">Select the stories you want to publish:</p>
+            <div className="max-h-60 overflow-y-auto space-y-2"> {/* Make this area scrollable */}
+              {stories.map((story) => (
+                <div key={story.id} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedStories.includes(story)}
+                    onChange={() => toggleStorySelection(story)}
+                    className="mr-2"
+                  />
+                  <label className="text-gray-600">{story.title ? story.title : `Story ${stories.indexOf(story) + 1}`}</label>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end gap-4 mt-4">
+              <button
+                onClick={() => setIsPublishing(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePublish}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                Publish
               </button>
             </div>
           </div>
