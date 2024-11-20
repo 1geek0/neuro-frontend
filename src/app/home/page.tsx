@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Modal } from '@/components/Modal'
 import { useAuth0 } from '@auth0/auth0-react'
-import { LogOut } from 'lucide-react'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
+import AirtableImport from '@/components/AirtableImport'
+import { LogOut } from 'lucide-react'
 
 interface Story {
     id: string;
@@ -28,39 +28,32 @@ export default function HomePage() {
     useAuthRedirect()
     const [similarStories, setSimilarStories] = useState<Story[]>([])
     const [research, setResearch] = useState<Research[]>([])
-    const [state, setState] = useState('')
     const router = useRouter()
     const [selectedStory, setSelectedStory] = useState<Story | null>(null)
     const { logout } = useAuth0()
     const authenticatedFetch = useAuthenticatedFetch()
+    const [state, setState] = useState<string>('');
 
     useEffect(() => {
-        let isMounted = true
-
+        let isMounted = true;
         const fetchData = async () => {
             try {
                 const [storiesRes, researchRes] = await Promise.all([
                     authenticatedFetch('/api/similar-stories'),
                     authenticatedFetch('/api/research')
-                ])
-
-                if (!storiesRes.ok || !researchRes.ok) {
-                    throw new Error('Failed to fetch data')
-                }
-
-                const stories = await storiesRes.json()
-                const research = await researchRes.json()
+                ]);
 
                 if (isMounted) {
+                    const stories = await storiesRes.json()
+                    const researchData = await researchRes.json()
                     setSimilarStories(stories)
-                    setResearch(research)
+                    setResearch(researchData)
                 }
             } catch (error) {
-                console.error('Error fetching data:', error)
+                console.error('Error fetching data:', error);
             }
         }
-
-        fetchData()
+        fetchData();
 
         return () => {
             isMounted = false
@@ -68,24 +61,13 @@ export default function HomePage() {
     }, [])
 
     const handleLogout = async () => {
-        try {
-            // Clear session cookie - fixed to include domain and secure flags
-            document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
-
-            // Auth0 logout and redirect
-            await logout({
-                logoutParams: {
-                    returnTo: window.location.origin
-                }
-            })
-
-            // Force navigation to home
-            router.push('/')
-        } catch (error) {
-            console.error('Error during logout:', error)
-            // Fallback: force navigation even if Auth0 logout fails
-            router.push('/')
-        }
+        document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
+        await logout({
+            logoutParams: {
+                returnTo: window.location.origin
+            }
+        })
+        router.push('/')
     }
 
     return (
@@ -132,25 +114,39 @@ export default function HomePage() {
                     <div className="space-y-8">
                         {/* Research Section */}
                         <section className="bg-white rounded-lg shadow p-6">
-                            <h2 className="text-xl font-bold mb-4 text-gray-900">Latest Research on Meningioma</h2>
-                            <div className="space-y-4">
-                                {research.map(item => (
-                                    <a
-                                        key={item.id}
-                                        href={item.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="block border rounded-lg p-4 hover:bg-gray-50"
-                                    >
-                                        <h3 className="font-semibold mb-2 text-gray-900">{item.title}</h3>
-                                        <p className="text-sm text-gray-900 line-clamp-2">
-                                            {item.abstract}
-                                        </p>
-                                    </a>
-                                ))}
-                            </div>
-                        </section>
-
+                        <h2 className="text-xl font-bold mb-4 text-gray-900">Latest Research on Meningioma</h2>
+                        <div className="space-y-4">
+                            {research.map(item => (
+                                <a
+                                    key={item.id}
+                                    href={item.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block border rounded-lg p-4 hover:bg-gray-50"
+                                >
+                                    <h3 className="font-semibold mb-2 text-gray-900">{item.title}</h3>
+                                    <p className="text-sm text-gray-900 line-clamp-2">
+                                        {item.abstract}
+                                    </p>
+                                </a>
+                            ))}
+                        </div>
+                    </section>
+                    <Modal
+                isOpen={!!selectedStory}
+                onClose={() => setSelectedStory(null)}
+            >
+                {selectedStory && (
+                    <div className="space-y-4">
+                        <h2 className="text-xl font-bold text-gray-900">{selectedStory.title}</h2>
+                        <p className="text-sm text-gray-500">
+                            {new Date(selectedStory.createdAt['$date']).toLocaleDateString()}
+                        </p>
+                        <p className="text-gray-900 whitespace-pre-wrap">{selectedStory.rawText}</p>
+                    </div>
+                )}
+            </Modal>
+            <AirtableImport setResearch={setResearch} />        
                         {/* Medical Resources Section */}
                         <section className="bg-white rounded-lg shadow p-6">
                             <h2 className="text-xl font-bold mb-4 text-gray-900">
@@ -246,6 +242,7 @@ export default function HomePage() {
                     </div>
                 )}
             </Modal>
+            <AirtableImport setResearch={setResearch} />
         </main>
-    )
+    );
 } 
