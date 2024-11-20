@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'
 import { useAuth0 } from '@auth0/auth0-react'
 import StoryInput from '@/components/StoryInput'
@@ -74,3 +74,4 @@ The second surgeon has done lots of surgeries, and I really liked him, but he is
     </main>
   );
 }
+  
