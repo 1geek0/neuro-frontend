@@ -10,11 +10,11 @@ import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
 
 interface Story {
-    id: string
-    rawText: string
-    userId: string
-    createdAt: { $date: string }
-    title: string
+    id: string;
+    title: string | null;
+    rawText: string;
+    userId: string;
+    createdAt: { $date: string };
 }
 
 interface Research {
@@ -120,8 +120,11 @@ export default function HomePage() {
                                         <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
                                     </div>
                                 ))}
-                            <button className="w-full bg-emerald-100 text-emerald-900 rounded-lg p-3 hover:bg-emerald-200 transition">
-                                Add more to your story to find more similar people
+                            <button 
+                                onClick={() => router.push('/notes')} 
+                                className="w-full bg-emerald-100 text-emerald-900 rounded-lg p-3 hover:bg-emerald-200 transition"
+                            >
+                                Add more to your story to find more similar people 
                             </button>
                         </div>
                     </section>

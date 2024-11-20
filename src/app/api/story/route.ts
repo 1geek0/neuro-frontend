@@ -16,6 +16,14 @@ export async function POST(req: NextRequest) {
     }
 
     const { story } = await req.json()
+    
+    if (!story || typeof story !== 'string') {
+      return NextResponse.json(
+        { error: 'Invalid story format' },
+        { status: 400 }
+      )
+    }
+
     const sessionId = req.cookies.get('sessionId')?.value
 
     const { user, sessionId: newSessionId } = await getOrCreateUser(
@@ -24,41 +32,48 @@ export async function POST(req: NextRequest) {
       username || undefined
     )
 
-    // Process the story asynchronously
-    const [timelineJson, embedding, title] = await Promise.all([
-      processStoryToTimeline(story),
-      generateEmbedding(story),
-      generateTitle(story)
-    ])
+    // Process the story with proper error handling
+    try {
+      const [timelineJson, embedding, title] = await Promise.all([
+        processStoryToTimeline(story),
+        generateEmbedding(story),
+        generateTitle(story)
+      ])
 
-    // Save to database
-    await prisma.story.create({
-      data: {
-        userId: user.id,
-        title,
-        rawText: story,
-        timelineJson,
-        embedding
-      }
-    })
-
-    const response = NextResponse.json({ success: true })
-
-    // Set session cookie if it's a new user
-    if (!sessionId) {
-      response.cookies.set('sessionId', newSessionId, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 365 // 1 year
+      // Save to database
+      await prisma.story.create({
+        data: {
+          userId: user.id,
+          title,
+          rawText: story,
+          timelineJson,
+          embedding
+        }
       })
-    }
 
-    return response
+      const response = NextResponse.json({ success: true })
+
+      if (!sessionId) {
+        response.cookies.set('sessionId', newSessionId, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 365 // 1 year
+        })
+      }
+
+      return response
+    } catch (error) {
+      console.error('Error processing story:', error)
+      return NextResponse.json(
+        { error: 'Failed to process story' },
+        { status: 500 }
+      )
+    }
   } catch (error) {
-    console.error('Error processing story:', error)
+    console.error('Error in story endpoint:', error)
     return NextResponse.json(
-      { error: 'Failed to process story' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }

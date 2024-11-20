@@ -49,7 +49,7 @@ export default function OnboardingPage() {
           </p>
         </div>
         <ErrorBoundary>
-          <StoryInput />
+          <StoryInput redirectPath="/home" />
         </ErrorBoundary>
       </div>
     </main>
