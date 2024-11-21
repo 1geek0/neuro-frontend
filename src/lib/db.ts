@@ -23,7 +23,6 @@ export async function getOrCreateUser(sessionId?: string, auth0Id?: string, user
         data: {
           sessionId: sessionId || uuidv4(), // Generate new sessionId if not provided
           auth0Id,
-          timelineJson: {},
           username: username || null
         }
       })
