@@ -1,31 +1,76 @@
-import React from 'react';
+"use client"
+
+import React, { useEffect, useState } from 'react';
 // import { Card } from '@/components/ui/card';
 import { Pencil, ArrowDownIcon } from 'lucide-react';
+import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
+
+interface Event {
+  phase: string;
+  type: string;
+  date: string; // ISO date string
+  desc: string[]; // Array of strings for descriptions
+  details: string;
+}
 
 const ReverseTimeline = () => {
-  const events = [
-    {
-      phase: "post-surgery",
-      type: "follow-up",
-      date: "2024-02-15",
-      desc: "Return to driving",
-      details: "Able to drive short distances after 6 months restriction"
-    },
-    {
-      phase: "post-surgery",
-      type: "symptom",
-      date: "2023-08-20",
-      desc: "Post-surgical symptoms",
-      details: "Insomnia, body ache, joint pain in feet and hands, toe pain"
-    },
-    {
-      phase: "surgery",
-      type: "surgery",
-      date: "2023-08-15",
-      desc: "Cranioplasty",
-      details: "Surgical procedure"
+
+  const authenticatedFetch = useAuthenticatedFetch()
+
+  const [events, setEvents] = useState<Event[]>([]);
+
+  // const events = [
+  //   {
+  //     phase: "post-surgery",
+  //     type: "follow-up",
+  //     date: "2024-02-15",
+  //     desc: "Return to driving",
+  //     details: "Able to drive short distances after 6 months restriction"
+  //   },
+  //   {
+  //     phase: "post-surgery",
+  //     type: "symptom",
+  //     date: "2023-08-20",
+  //     desc: "Post-surgical symptoms",
+  //     details: "Insomnia, body ache, joint pain in feet and hands, toe pain"
+  //   },
+  //   {
+  //     phase: "surgery",
+  //     type: "surgery",
+  //     date: "2023-08-15",
+  //     desc: "Cranioplasty",
+  //     details: "Surgical procedure"
+  //   }
+  // ];
+
+  useEffect(() => {
+    let isMounted = true
+    const fetchTimeline = async () => {
+      try {
+        const timelineRes = await authenticatedFetch('/api/timeline')
+        console.log(timelineRes);
+
+        if (!timelineRes.ok) {
+          throw new Error('Failed to fetch timeline')
+        }
+
+        const timeline = await timelineRes.json();
+
+        if (isMounted)
+          setEvents(timeline)
+
+      } catch (error) {
+        console.error('Error fecthing timeline:', error);
+      }
     }
-  ];
+
+    fetchTimeline()
+    return () => {
+      isMounted = false;
+    }
+  }, [])
+
+
 
   const getTimeDifference = (date1, date2) => {
     const d1 = new Date(date1);
