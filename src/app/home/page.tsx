@@ -30,9 +30,29 @@ export default function HomePage() {
     const [research, setResearch] = useState<Research[]>([])
     const router = useRouter()
     const [selectedStory, setSelectedStory] = useState<Story | null>(null)
-    const { logout } = useAuth0()
+    const { logout, user } = useAuth0()
     const authenticatedFetch = useAuthenticatedFetch()
     const [state, setState] = useState<string>('');
+
+    const handleDiscourseSSO = async () => {
+        if (!user) return;
+
+        const response = await authenticatedFetch('/api/discourse/sso', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId: user.sub, email: user.email })
+        });
+
+        if (response.ok) {
+            const { ssoUrl } = await response.json();
+            window.location.href = ssoUrl; // Redirect to Discourse with SSO
+        } else {
+            const errorData = await response.json();
+            console.error('Failed to create SSO link:', errorData);
+        }
+    };
 
     useEffect(() => {
         let isMounted = true;
@@ -102,6 +122,12 @@ export default function HomePage() {
                                         <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
                                     </div>
                                 ))}
+                            <button
+                    onClick={handleDiscourseSSO}
+                    className="w-full bg-emerald-100 text-emerald-900 rounded-lg p-3 hover:bg-emerald-200 transition"
+                    >
+                    Go to Discourse Forum
+                </button>
                             <button 
                                 onClick={() => router.push('/notes')} 
                                 className="w-full bg-emerald-100 text-emerald-900 rounded-lg p-3 hover:bg-emerald-200 transition"
@@ -132,6 +158,8 @@ export default function HomePage() {
                             ))}
                         </div>
                     </section>
+                    {/* Discourse SSO Button */}
+                
                     <Modal
                 isOpen={!!selectedStory}
                 onClose={() => setSelectedStory(null)}
