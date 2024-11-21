@@ -51,6 +51,11 @@ export async function POST(req: NextRequest) {
         }
       })
 
+      await prisma.user.update({
+        where : {id : user.id},
+        data : {timelineJson : timelineJson}
+      })
+
       const response = NextResponse.json({ success: true })
 
       if (!sessionId) {
