@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { story } = await req.json()
-    
+
     if (!story || typeof story !== 'string') {
       return NextResponse.json(
         { error: 'Invalid story format' },
@@ -34,11 +34,23 @@ export async function POST(req: NextRequest) {
 
     // Process the story with proper error handling
     try {
-      const [timelineJson, embedding, title] = await Promise.all([
-        processStoryToTimeline(story),
+      const [embedding, title] = await Promise.all([
         generateEmbedding(story),
         generateTitle(story)
       ])
+
+      // Get all user's stories
+      const existingStories = await prisma.story.findMany({
+        where: { userId: user.id },
+        select: { rawText: true }
+      })
+
+      // Combine all stories including the new one
+      const allStories = [...existingStories.map(s => s.rawText), story]
+      const combinedText = allStories.join('\n\n')
+
+      // Generate timeline from combined stories
+      const timelineJson = await processStoryToTimeline(combinedText)
 
       // Save to database
       await prisma.story.create({
@@ -46,14 +58,13 @@ export async function POST(req: NextRequest) {
           userId: user.id,
           title,
           rawText: story,
-          timelineJson,
           embedding
         }
       })
 
       await prisma.user.update({
-        where : {id : user.id},
-        data : {timelineJson : timelineJson}
+        where: { id: user.id },
+        data: { timelineJson }
       })
 
       const response = NextResponse.json({ success: true })
