@@ -72,11 +72,11 @@ const ReverseTimeline = () => {
 
 
 
-  const getTimeDifference = (date1, date2) => {
+  const getTimeDifference = (date1: string, date2: string) => {
     const d1 = new Date(date1);
     const d2 = new Date(date2);
     const diffMonths = (d1.getFullYear() - d2.getFullYear()) * 12 + (d1.getMonth() - d2.getMonth());
-    const diffDays = Math.floor((d1 - d2) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor((d1.getTime() - d2.getTime()) / (1000 * 60 * 60 * 24));
 
     if (diffMonths > 0) {
       return `${diffMonths} months later`;

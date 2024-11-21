@@ -58,7 +58,8 @@ export async function POST(req: NextRequest) {
           userId: user.id,
           title,
           rawText: story,
-          embedding
+          embedding,
+          timelineJson
         }
       })
 

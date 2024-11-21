@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     const { user } = await getOrCreateUser(sessionId, auth0Id);
 
     // If user already has timelineJson with events, return it
-    if (user.timelineJson?.events && Array.isArray(user.timelineJson.events)) {
+    if (typeof user.timelineJson === 'object' && !Array.isArray(user.timelineJson) && user.timelineJson?.events && Array.isArray(user.timelineJson.events)) {
       return NextResponse.json({
         timeline: user.timelineJson.events
       });
