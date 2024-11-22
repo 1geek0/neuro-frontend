@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { PencilIcon, PlusCircle, Loader2, ArrowLeft } from 'lucide-react';
+import { PencilIcon, PlusCircle, Loader2, ArrowLeft, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
+import { TimelineModal } from '@/components/TimelineModal';
 
 interface Story {
   id: string;
@@ -20,26 +21,37 @@ const StoryNotes = () => {
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState('');
+  const [showTimeline, setShowTimeline] = useState(false);
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
 
-  const fetchStories = useCallback(async () => {
-    try {
-      const response = await authenticatedFetch('/api/stories');
-      if (!response.ok) throw new Error('Failed to fetch stories');
-      const data = await response.json();
-      console.log('Fetched stories:', data); // Debugging line
-      setStories(data);
-    } catch (error) {
-      console.error('Error fetching stories:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [authenticatedFetch]);
-
   useEffect(() => {
-    fetchStories(); // Fetch stories on component mount
-  }, [fetchStories]);
+    let mounted = true;
+    setIsLoading(true);
+
+    const loadStories = async () => {
+      try {
+        const response = await authenticatedFetch('/api/stories');
+        if (!response.ok) throw new Error('Failed to fetch stories');
+        const data = await response.json();
+        if (mounted) {
+          setStories(data);
+        }
+      } catch (error) {
+        console.error('Error fetching stories:', error);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadStories();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const handleAddStory = () => {
     router.push('/notes/add');
@@ -68,7 +80,12 @@ const StoryNotes = () => {
         throw new Error(error.error || 'Failed to update story');
       }
 
-      await fetchStories();
+      const storiesResponse = await authenticatedFetch('/api/stories');
+      if (storiesResponse.ok) {
+        const data = await storiesResponse.json();
+        setStories(data);
+      }
+
       setIsEditing(false);
       setSelectedStory(null);
     } catch (error) {
@@ -88,6 +105,12 @@ const StoryNotes = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 py-8">
       <div className="container mx-auto px-4 max-w-4xl">
+        <div className="bg-blue-100 text-blue-800 p-4 rounded-lg mb-6">
+          <p className="text-sm">
+            Your stories are kept private until you wish to publish them.
+          </p>
+        </div>
+
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
             <button
@@ -98,13 +121,21 @@ const StoryNotes = () => {
             </button>
             <h1 className="text-2xl font-bold text-gray-900">My Story Notes</h1>
           </div>
-          <button
-            onClick={handleAddStory}
-            className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-          >
-            <PlusCircle className="w-5 h-5" />
-            Add New Story
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={() => setShowTimeline(true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              View Timeline
+            </button>
+            <button
+              onClick={handleAddStory}
+              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+            >
+              <PlusCircle className="w-5 h-5" />
+              Add New Story
+            </button>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -115,8 +146,9 @@ const StoryNotes = () => {
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <span className="text-sm text-gray-500">
-                    Note {index + 1} - {new Date(story.createdAt.$date).toLocaleDateString()}
+                  <span className="text-sm text-gray-500 flex items-center">
+                    <Lock className="w-4 h-4 text-green-500 mr-1" />
+                    Note {index + 1} - {new Date(story.createdAt.$date).toLocaleDateString()} <span className="text-black-800 text-sm"> ( Private )</span>
                   </span>
                   <h2 className="text-xl font-semibold text-gray-900 mt-1">
                     {story.title ? story.title : `Story ${index + 1}`}
@@ -154,8 +186,7 @@ const StoryNotes = () => {
               <button
                 onClick={() => setIsEditing(false)}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800"
-              > 
-              
+              >
                 Cancel
               </button>
               <button
@@ -168,6 +199,11 @@ const StoryNotes = () => {
           </div>
         </div>
       )}
+
+      <TimelineModal
+        isOpen={showTimeline}
+        onClose={() => setShowTimeline(false)}
+      />
     </div>
   );
 };

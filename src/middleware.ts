@@ -57,6 +57,7 @@ export const config = {
         '/api/story',
         '/api/similar-stories',
         '/api/research',
-        '/api/check-story'
+        '/api/check-story',
+        '/api/timeline'
     ]
 }
