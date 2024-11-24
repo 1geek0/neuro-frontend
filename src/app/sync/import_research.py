@@ -49,6 +49,17 @@ def validate_env_vars():
             "Please check your .env file and ensure all required variables are set."
         )
 
+def delete_existing_data():
+    """Delete all data from specified MongoDB collections."""
+    print("\n🗑️ Deleting existing data from MongoDB collections...")
+    try:
+        for _, collection_name in tables.items():
+            mongo_db[collection_name].delete_many({})  # Delete all documents
+            print(f"✅ Cleared collection: {collection_name}")
+    except Exception as e:
+        print(f"❌ Error deleting data: {e}")
+        raise
+
 def generate_embedding(text: str) -> list:
     """Generate embedding using OpenAI's API."""
     try:
@@ -66,6 +77,9 @@ def fetch_and_store_records():
     try:
         # Validate environment variables
         validate_env_vars()
+
+        # Delete existing data before fetching new records
+        delete_existing_data()
 
         # Process each table in Airtable
         for table_name, mongo_collection_name in tables.items():
@@ -91,50 +105,84 @@ def fetch_and_store_records():
                     fields = record.get("fields", {})
 
                     # Extract fields dynamically
-                    title = fields.get("Title") or fields.get("Name")
-                    link = fields.get("Link", None)
-                    state = fields.get("State", None)
-                    facility_type = fields.get("Facility Type", None)
-                    content = fields.get("All text", "")
+                    if table_name == "Patient Relevant Resources":
+                        title = fields.get("Title")
+                        link = fields.get("Link")
+                        resource_type = fields.get("Resource Type")
+                        content = fields.get("All text", "")
 
-                    # Prepare text for embedding
-                    text_for_embedding = f"{title} {content} {state or ''} {facility_type or ''}"
+                        # Prepare text for embedding
+                        text_for_embedding = f"{title} {content} {resource_type or ''}"
 
-                    # Skip if required fields are missing
-                    if not title:
-                        skipped += 1
-                        pbar.update(1)
-                        continue
+                        # Skip if required fields are missing
+                        if not title:
+                            skipped += 1
+                            pbar.update(1)
+                            continue
 
-                    try:
-                        # Generate embeddings
-                        embedding = generate_embedding(text_for_embedding)
+                        try:
+                            # Generate embeddings
+                            embedding = generate_embedding(text_for_embedding)
 
-                        # Prepare MongoDB document
-                        document = {
-                            "_id": record.get("id"),  # Use Airtable record ID as MongoDB ID
-                            "title": title,
-                            "link": link,
-                            "state": state,
-                            "facility_type": facility_type,
-                            "content": content,
-                            "embedding": embedding,
-                            "createdAt": fields.get("createdAt", datetime.utcnow().isoformat()),
-                            "updatedAt": datetime.utcnow().isoformat(),
-                        }
+                            # Prepare MongoDB document
+                            document = {
+                                "_id": record.get("id"),  # Use Airtable record ID as MongoDB ID
+                                "title": title,
+                                "link": link,
+                                "resource_type": resource_type,
+                                "content": content,
+                                "embedding": embedding,
+                                "createdAt": fields.get("createdAt", datetime.utcnow().isoformat()),
+                                "updatedAt": datetime.utcnow().isoformat(),
+                            }
 
-                        # Upsert into MongoDB
-                        mongo_collection.update_one(
-                            {"_id": document["_id"]},  # Match by ID
-                            {"$set": document},        # Update fields
-                            upsert=True                # Insert if not found
-                        )
+                            # Insert into MongoDB
+                            mongo_collection.update_one(
+                                {"_id": document["_id"]},  # Match by ID
+                                {"$set": document},        # Update fields
+                                upsert=True                # Insert if not found
+                            )
 
-                        created += 1
+                            created += 1
 
-                    except Exception as e:
-                        print(f"\n❌ Error processing record: {e}")
-                        skipped += 1
+                        except Exception as e:
+                            print(f"\n❌ Error processing record: {e}")
+                            skipped += 1
+
+                    elif table_name == "State Medical Resources":
+                        name = fields.get("Name")
+                        state = fields.get("State")
+                        facility_type = fields.get("Facility Type")
+
+                        # Skip if required fields are missing
+                        if not name:
+                            skipped += 1
+                            pbar.update(1)
+                            continue
+
+                        try:
+                            # Prepare MongoDB document
+                            document = {
+                                "_id": record.get("id"),  # Use Airtable record ID as MongoDB ID
+                                "name": name,
+                                "state": state,
+                                "facility_type": facility_type,
+                                "createdAt": fields.get("createdAt", datetime.utcnow().isoformat()),
+                                "updatedAt": datetime.utcnow().isoformat(),
+                            }
+
+                            # Insert into MongoDB
+                            mongo_collection.update_one(
+                                {"_id": document["_id"]},  # Match by ID
+                                {"$set": document},        # Update fields
+                                upsert=True                # Insert if not found
+                            )
+
+                            created += 1
+
+                        except Exception as e:
+                            print(f"\n❌ Error processing record: {e}")
+                            skipped += 1
 
                     pbar.update(1)
 
