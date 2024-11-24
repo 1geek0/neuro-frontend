@@ -32,7 +32,7 @@ if not mongo_uri:
     raise EnvironmentError("MONGO_URI or DATABASE_URL is missing from the .env file.")
 
 mongo_client = MongoClient(mongo_uri)
-mongo_db = mongo_client["medical_resources"]
+mongo_db = mongo_client["test"]
 
 def validate_env_vars():
     """Ensure all required environment variables are set."""
@@ -48,17 +48,6 @@ def validate_env_vars():
             f"Missing required environment variables: {', '.join(missing_vars)}\n"
             "Please check your .env file and ensure all required variables are set."
         )
-
-def delete_existing_data():
-    """Delete all data from specified MongoDB collections."""
-    print("\n🗑️ Deleting existing data from MongoDB collections...")
-    try:
-        for _, collection_name in tables.items():
-            mongo_db[collection_name].delete_many({})  # Delete all documents
-            print(f"✅ Cleared collection: {collection_name}")
-    except Exception as e:
-        print(f"❌ Error deleting data: {e}")
-        raise
 
 def generate_embedding(text: str) -> list:
     """Generate embedding using OpenAI's API."""
@@ -77,9 +66,6 @@ def fetch_and_store_records():
     try:
         # Validate environment variables
         validate_env_vars()
-
-        # Delete existing data before fetching new records
-        delete_existing_data()
 
         # Process each table in Airtable
         for table_name, mongo_collection_name in tables.items():
