@@ -81,6 +81,9 @@ export async function POST(req: NextRequest) {
             const auth0User = await userInfoResponse.json();
             console.log('Auth0 user info:', auth0User);
 
+            // Force email_verified to true
+            auth0User.email_verified = true;
+
             if (!auth0User.email) {
                 console.error('Email not found in user info');
                 return NextResponse.json({ 
@@ -95,7 +98,7 @@ export async function POST(req: NextRequest) {
                 email: auth0User.email,
                 username: auth0User.nickname || auth0User.name || auth0User.email.split('@')[0],
                 name: auth0User.name,
-                require_activation: auth0User.email_verified ? 'false' : 'true'
+                require_activation: 'false'  // Set to false to skip activation
             };
             console.log('Created SSO payload:', ssoPayload);
 
@@ -186,6 +189,9 @@ export async function GET(req: NextRequest) {
         const auth0User = await userInfoResponse.json();
         console.log('Auth0 user info:', auth0User);
 
+        // Force email_verified to true
+        auth0User.email_verified = 'true';
+
         if (!auth0User.email) {
             console.error('Email not found in user info');
             return NextResponse.json({ 
@@ -201,7 +207,7 @@ export async function GET(req: NextRequest) {
             external_id: auth0User.sub,
             username: auth0User.nickname || auth0User.name || auth0User.email.split('@')[0],
             name: auth0User.name,
-            require_activation: auth0User.email_verified ? 'false' : 'true'
+            require_activation: 'false'  // Set to false to skip activation
         };
 
         // Convert payload to query string
