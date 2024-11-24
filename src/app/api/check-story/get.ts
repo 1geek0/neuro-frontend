@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     } catch (error) {
         console.error('Error checking story status:', error)
         return NextResponse.json(
-            { error: 'Failed to check story status' },
+            { error: 'Failed to check story status 2' },
             { status: 500 }
         )
     }
