@@ -41,7 +41,7 @@ export default function HomePage() {
     const [state, setState] = useState('')
     const router = useRouter()
     const [selectedStory, setSelectedStory] = useState<Story | null>(null)
-    const { logout } = useAuth0()
+    const { logout, user } = useAuth0()
     const authenticatedFetch = useAuthenticatedFetch()
     const [stateResources, setStateResources] = useState<StateResource[]>([])
     const [isLoadingResources, setIsLoadingResources] = useState(false)
@@ -92,6 +92,30 @@ export default function HomePage() {
             isMounted = false
         }
     }, [])
+
+    const handleDiscourseSSO = async () => {
+        if (!user) return;
+
+        try {
+            const response = await authenticatedFetch('/api/discourse/sso', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.ok) {
+                const { ssoUrl } = await response.json();
+                // Redirect to Discourse with SSO parameters
+                window.location.href = ssoUrl;
+            } else {
+                const error = await response.text();
+                console.error('Failed to create SSO link:', error);
+            }
+        } catch (error) {
+            console.error('Error during SSO:', error);
+        }
+    };
 
     const handleLogout = async () => {
         try {
@@ -180,6 +204,13 @@ export default function HomePage() {
                                         )}
                                     </div>
                                 ))}
+                                                        <button
+                    onClick={handleDiscourseSSO}
+                    className="w-full bg-emerald-100 text-emerald-900 rounded-lg p-3 hover:bg-emerald-200 transition"
+                    >
+                    Go to Discourse Forum
+                </button>
+
                             <button
                                 onClick={() => router.push('/notes')}
                                 className="w-full bg-emerald-100 text-emerald-900 rounded-lg p-3 hover:bg-emerald-200 transition"
