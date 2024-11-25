@@ -6,7 +6,7 @@ import { Modal } from '@/components/Modal'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
-import AirtableImport from '@/components/AirtableImport'
+
 import { LogOut } from 'lucide-react'
 
 interface Story {
@@ -174,7 +174,6 @@ export default function HomePage() {
                     </div>
                 )}
             </Modal>
-            <AirtableImport setResearch={setResearch} />        
                         {/* Medical Resources Section */}
                         <section className="bg-white rounded-lg shadow p-6">
                             <h2 className="text-xl font-bold mb-4 text-gray-900">
@@ -270,7 +269,6 @@ export default function HomePage() {
                     </div>
                 )}
             </Modal>
-            <AirtableImport setResearch={setResearch} />
         </main>
     );
 } 
