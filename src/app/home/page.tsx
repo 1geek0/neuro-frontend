@@ -37,20 +37,24 @@ export default function HomePage() {
     const handleDiscourseSSO = async () => {
         if (!user) return;
 
-        const response = await authenticatedFetch('/api/discourse/sso', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userId: user.sub, email: user.email })
-        });
+        try {
+            const response = await authenticatedFetch('/api/discourse/sso', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
 
-        if (response.ok) {
-            const { ssoUrl } = await response.json();
-            window.location.href = ssoUrl; // Redirect to Discourse with SSO
-        } else {
-            const errorData = await response.json();
-            console.error('Failed to create SSO link:', errorData);
+            if (response.ok) {
+                const { ssoUrl } = await response.json();
+                // Redirect to Discourse with SSO parameters
+                window.location.href = ssoUrl;
+            } else {
+                const error = await response.text();
+                console.error('Failed to create SSO link:', error);
+            }
+        } catch (error) {
+            console.error('Error during SSO:', error);
         }
     };
 
