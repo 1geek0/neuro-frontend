@@ -173,7 +173,7 @@ const StoryNotes = () => {
                 <div>
                   <span className="text-sm text-gray-500 flex items-center">
                     <Lock className="w-4 h-4 text-green-500 mr-1" />
-                    Note {index + 1} - {new Date(story.createdAt).toLocaleString()} <span className="text-black-800 text-sm"> ( Private )</span>
+                    Note {index + 1} - {new Date(story.createdAt.$date).toLocaleString()} <span className="text-black-800 text-sm"> ( Private )</span>
                   </span>
                   <h2 className="text-xl font-semibold text-gray-900 mt-1">
                     {story.title ? story.title : `Story ${index + 1}`}

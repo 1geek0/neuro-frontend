@@ -15,6 +15,8 @@ interface Story {
     rawText: string;
     userId: string;
     createdAt: { $date: string };
+    content?: string;
+    link?: string;
 }
 
 interface Research {
@@ -22,6 +24,7 @@ interface Research {
     title: string
     link: string
     content: string
+    resource_type: string
 }
 
 interface StateResource {
@@ -58,11 +61,25 @@ export default function HomePage() {
                 }
 
                 const stories = await storiesRes.json()
-                const research = await researchRes.json()
+                const researchData = await researchRes.json()
 
                 if (isMounted) {
-                    setSimilarStories(stories)
-                    setResearch(research)
+                    const additionalStories = researchData
+                        .filter((item: Research) =>
+                            item.resource_type === 'Individual Patient Story' ||
+                            item.resource_type === 'Communities'
+                        )
+                        .map((item: Research) => ({
+                            ...item,
+                            rawText: item.content
+                        }))
+
+                    const medicalResearch = researchData.filter((item: Research) =>
+                        item.resource_type === 'Medical Research'
+                    )
+
+                    setSimilarStories([...stories, ...additionalStories])
+                    setResearch(medicalResearch)
                 }
             } catch (error) {
                 console.error('Error fetching data:', error)
@@ -147,11 +164,20 @@ export default function HomePage() {
                                         className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                                         onClick={() => setSelectedStory(story)}
                                     >
-                                        <p className="text-sm text-gray-900 mb-2">
-                                            {new Date(story.createdAt['$date']).toLocaleDateString()}
-                                        </p>
-                                        <h3 className="font-semibold mb-2">{story.title}</h3>
+
+                                        <h3 className="font-semibold mb-2 text-gray-900">{story.title}</h3>
                                         <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
+                                        {story.link && (
+                                            <a
+                                                href={story.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                View original post →
+                                            </a>
+                                        )}
                                     </div>
                                 ))}
                             <button
@@ -178,7 +204,7 @@ export default function HomePage() {
                                     >
                                         <h3 className="font-semibold mb-2 text-gray-900">{item.title}</h3>
                                         <p className="text-sm text-gray-900 line-clamp-2">
-                                            {item.abstract}
+                                            {item.content}
                                         </p>
                                     </a>
                                 ))}
@@ -356,9 +382,9 @@ export default function HomePage() {
                 {selectedStory && (
                     <div className="space-y-4">
                         <h2 className="text-xl font-bold text-gray-900">{selectedStory.title}</h2>
-                        <p className="text-sm text-gray-500">
+                        {/* <p className="text-sm text-gray-500">
                             {new Date(selectedStory.createdAt['$date']).toLocaleDateString()}
-                        </p>
+                        </p> */}
                         <p className="text-gray-900 whitespace-pre-wrap">{selectedStory.rawText}</p>
                     </div>
                 )}

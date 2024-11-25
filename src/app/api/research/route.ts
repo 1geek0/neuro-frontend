@@ -10,7 +10,8 @@ export async function GET() {
                 id: true,
                 title: true,
                 link: true,
-                content: true
+                content: true,
+                resource_type: true
             }
         })
 
