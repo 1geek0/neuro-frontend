@@ -58,6 +58,8 @@ export const config = {
         '/api/similar-stories',
         '/api/research',
         '/api/check-story',
-        '/api/timeline'
+        '/api/timeline',
+        '/api/state-resources/:state*',
+        '/api/stories/delete-all'
     ]
 }

@@ -55,14 +55,15 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
     try {
-        const research = await prisma.research.findMany({
+        const research = await prisma.patient_relevant_resources.findMany({
             orderBy: { createdAt: 'desc' },
             take: 5,
             select: {
                 id: true,
                 title: true,
-                url: true,
-                abstract: true
+                link: true,
+                content: true,
+                resource_type: true
             }
         });
 
