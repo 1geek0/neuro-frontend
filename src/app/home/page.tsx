@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { useRouter } from 'next/navigation'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Modal } from '@/components/Modal'
@@ -8,8 +8,12 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { LogOut } from 'lucide-react'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
+import { demoSimilarStories } from '@/Demo/demoSimilarStories'
+import { useDemoContext } from '@/context/context';
 
-interface Story {
+
+
+export interface Story {
     id: string;
     title: string | null;
     rawText: string;
@@ -33,6 +37,8 @@ export default function HomePage() {
     const [selectedStory, setSelectedStory] = useState<Story | null>(null)
     const { logout } = useAuth0()
     const authenticatedFetch = useAuthenticatedFetch()
+
+    const { demo, setDemo } = useDemoContext();
 
     useEffect(() => {
         let isMounted = true
@@ -60,7 +66,11 @@ export default function HomePage() {
             }
         }
 
-        fetchData()
+        if (demo) {
+            setSimilarStories(demoSimilarStories);
+        } else {
+            fetchData();
+        }
 
         return () => {
             isMounted = false
@@ -88,17 +98,27 @@ export default function HomePage() {
         }
     }
 
+
     return (
         <main className="min-h-screen bg-gradient-to-b from-white to-gray-50 py-8">
             <div className="container mx-auto px-4">
                 <div className="flex justify-end mb-6">
-                    <button
+                    {!demo ? <button
                         onClick={handleLogout}
                         className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-300 shadow-sm"
                     >
                         <LogOut className="w-4 h-4" />
                         Logout
                     </button>
+
+                        :
+                        <button
+                            onClick={() => setDemo(false)}
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-300 shadow-sm"
+                        >
+                            Quit Demo Mode
+                        </button>
+                    }
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -120,11 +140,11 @@ export default function HomePage() {
                                         <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
                                     </div>
                                 ))}
-                            <button 
-                                onClick={() => router.push('/notes')} 
+                            <button
+                                onClick={() => router.push('/notes')}
                                 className="w-full bg-emerald-100 text-emerald-900 rounded-lg p-3 hover:bg-emerald-200 transition"
                             >
-                                Add more to your story to find more similar people 
+                                Add more to your story to find more similar people
                             </button>
                         </div>
                     </section>
