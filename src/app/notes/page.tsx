@@ -22,6 +22,7 @@ const StoryNotes = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState('');
   const [showTimeline, setShowTimeline] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
 
@@ -94,6 +95,24 @@ const StoryNotes = () => {
     }
   };
 
+  const handleDeleteAllStories = async () => {
+    try {
+      const response = await authenticatedFetch('/api/stories/delete-all', {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete stories');
+      }
+
+      setStories([]);
+      setShowDeleteConfirm(false);
+    } catch (error) {
+      console.error('Error deleting stories:', error);
+      alert('Failed to delete stories. Please try again.');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -107,7 +126,7 @@ const StoryNotes = () => {
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="bg-blue-100 text-blue-800 p-4 rounded-lg mb-6">
           <p className="text-sm">
-            Your stories are kept private until you wish to publish them.
+            Your stories are always private. You can publish a short summary of your experience to share with others.
           </p>
         </div>
 
@@ -129,6 +148,12 @@ const StoryNotes = () => {
               View Timeline
             </button>
             <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Delete All Stories
+            </button>
+            <button
               onClick={handleAddStory}
               className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
             >
@@ -148,7 +173,7 @@ const StoryNotes = () => {
                 <div>
                   <span className="text-sm text-gray-500 flex items-center">
                     <Lock className="w-4 h-4 text-green-500 mr-1" />
-                    Note {index + 1} - {new Date(story.createdAt.$date).toLocaleDateString()} <span className="text-black-800 text-sm"> ( Private )</span>
+                    Note {index + 1} - {new Date(story.createdAt.$date).toLocaleString()} <span className="text-black-800 text-sm"> ( Private )</span>
                   </span>
                   <h2 className="text-xl font-semibold text-gray-900 mt-1">
                     {story.title ? story.title : `Story ${index + 1}`}
@@ -204,6 +229,32 @@ const StoryNotes = () => {
         isOpen={showTimeline}
         onClose={() => setShowTimeline(false)}
       />
+
+      {/* Delete All Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-xl font-semibold mb-4 text-red-600">Delete All Stories?</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete all your stories? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAllStories}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              >
+                Delete All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
