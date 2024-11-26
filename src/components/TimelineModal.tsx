@@ -75,7 +75,7 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                         {events.map((event, index) => (
                             <div key={index} className="relative">
                                 <div className="flex items-start gap-4">
-                                    <div className="flex-shrink-0 mt-1">
+                                    <div className="flex-shrink-0 my-auto">
                                         <Calendar className="w-5 h-5 text-gray-400" />
                                     </div>
                                     <div className="flex-grow">
@@ -99,9 +99,9 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                                         </div>
                                     </div>
                                 </div>
-                                {index < events.length - 1 && (
+                                {/* {index < events.length - 1 && (
                                     <div className="absolute left-[11px] top-8 bottom-0 w-0.5 bg-gray-200 h-8" />
-                                )}
+                                )} */}
                             </div>
                         ))}
                     </div>
