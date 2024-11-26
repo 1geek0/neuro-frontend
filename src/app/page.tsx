@@ -26,33 +26,57 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50">
-      <header className="px-4 lg:px-6 h-20 flex items-center justify-between">
-        <Link href="/" className="flex items-center transition-transform hover:scale-105">
-          <Brain className="h-8 w-8 text-purple-600" />
-          <span className="ml-2 text-2xl font-bold text-purple-600">neuro86</span>
+    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 flex flex-col">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm px-4 lg:px-6 h-16 flex items-center justify-between">
+        <Link href="/" className="flex items-center transition-all duration-300 hover:scale-105 hover:rotate-3">
+          <Brain className="h-7 w-7 text-purple-600 animate-pulse" />
+          <span className="ml-2 text-xl font-bold text-purple-600 tracking-tight">neuro86</span>
         </Link>
         {!isAuthenticated && (
           <button
             onClick={handleLogin}
-            className="text-purple-600 hover:text-purple-800 font-medium transition-colors duration-200 ease-in-out"
+            className="text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105 hover:tracking-wider"
           >
             Sign In
           </button>
         )}
       </header>
-      <main className="flex-1">
+      <main className="flex-1 overflow-hidden">
         {/* Hero Section */}
-        <section className="w-full py-20 md:py-32 lg:py-40 xl:py-48">
+        <section className="w-full py-12 md:py-20 lg:py-24 relative">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center space-y-8 text-center">
-              <div className="space-y-4 max-w-3xl">
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl/none bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 animate-gradient">
-                  Find Support and Connect with Others Facing Meningioma
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="space-y-6 text-left">
+                <div className="inline-block bg-purple-100 text-purple-600 px-4 py-1.5 rounded-full text-sm font-medium animate-bounce-slow">
+                  Community Support
+                </div>
+                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl text-gray-900 leading-tight">
+                  Find Support for <br />
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
+                    Meningioma Journey
+                  </span>
                 </h1>
-                <p className="mx-auto max-w-[700px] text-gray-600 md:text-xl/relaxed lg:text-2xl/relaxed">
-                  Welcome to <span className="font-bold text-purple-600">neuro86</span> – Your Anonymous Community for Navigating Life with Meningioma
+                <p className="text-xl text-gray-600 max-w-xl">
+                  An anonymous community where you can share, learn, and connect with others facing similar challenges.
                 </p>
+                <div className="flex space-x-4">
+                  <Link href="/onboarding">
+                    <Button 
+                      size="lg" 
+                      className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                    >
+                      Join Community
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              <div className="hidden md:block relative">
+                <div className="bg-purple-100/50 rounded-full w-72 h-72 absolute -top-10 -right-10 animate-blob"></div>
+                <div className="bg-pink-100/50 rounded-full w-56 h-56 absolute bottom-0 -left-10 animate-blob animation-delay-2000"></div>
+                <div className="relative z-10 flex justify-center items-center">
+                  <Users className="h-48 w-48 text-purple-600 animate-float" />
+                </div>
               </div>
             </div>
           </div>
@@ -177,11 +201,10 @@ export default function LandingPage() {
               <strong>Disclaimer:</strong> This is not for diagnosis. The platform is meant to help you track your journey
               and connect with others. It's not intended for diagnosis or treatment.
             </p>
-            <p>© {new Date().getFullYear()} neuro86. All rights reserved.</p>
+            <p> {new Date().getFullYear()} neuro86. All rights reserved.</p>
           </div>
         </div>
       </footer>
     </div>
   );
 }
-
