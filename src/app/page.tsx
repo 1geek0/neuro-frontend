@@ -87,7 +87,7 @@ export default function OnboardingPage() {
               onClick={() => handleDemo()} 
               className="mt-4 text-blue-600 hover:text-blue-800 font-medium underline"
             >
-              Pre-fill Story
+              Demo Mode
             </button>
           </div>
           <ErrorBoundary>
