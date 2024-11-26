@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Modal } from '@/components/Modal'
 import { useAuth0 } from '@auth0/auth0-react'
-import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X } from 'lucide-react'
+import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X, ChevronDown } from 'lucide-react'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
 
@@ -45,6 +45,8 @@ export default function HomePage() {
     const authenticatedFetch = useAuthenticatedFetch()
     const [stateResources, setStateResources] = useState<StateResource[]>([])
     const [isLoadingResources, setIsLoadingResources] = useState(false)
+    const [showStoriesScroll, setShowStoriesScroll] = useState(true)
+    const [showResearchScroll, setShowResearchScroll] = useState(true)
 
     useEffect(() => {
         let isMounted = true
@@ -129,6 +131,18 @@ export default function HomePage() {
         }
     }
 
+    const handleStoriesScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        if (e.currentTarget.scrollTop > 20) {
+            setShowStoriesScroll(false)
+        }
+    }
+
+    const handleResearchScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        if (e.currentTarget.scrollTop > 20) {
+            setShowResearchScroll(false)
+        }
+    }
+
     // Group resources by facility type for better organization
     const groupedResources = stateResources.reduce((acc, resource) => {
         const type = resource.facility_type
@@ -154,32 +168,50 @@ export default function HomePage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Similar Stories Section */}
-                    <section className="bg-white rounded-lg shadow p-6">
+                    <section className="bg-white rounded-lg shadow p-6 relative">
                         <h2 className="text-xl font-bold mb-4 text-gray-900">Find people with stories like you</h2>
-                        <div className="space-y-4">
-                            {
-                                similarStories.map(story => (
-                                    <div
-                                        key={story.id}
-                                        className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
-                                        onClick={() => setSelectedStory(story)}
-                                    >
-
-                                        <h3 className="font-semibold mb-2 text-gray-900">{story.title}</h3>
-                                        <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
-                                        {story.link && (
-                                            <a
-                                                href={story.link}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                View original post →
-                                            </a>
-                                        )}
+                        <div
+                            className="space-y-4 h-[600px] overflow-y-auto pr-2 pb-16 relative scroll-smooth"
+                            onScroll={handleStoriesScroll}
+                        >
+                            {showStoriesScroll && (
+                                <div className="absolute right-0 top-0 p-2 bg-gradient-to-l from-white via-white to-transparent">
+                                    <div className="text-xs text-gray-500 flex items-center gap-1">
+                                        <span>Scroll</span>
+                                        <ChevronDown className="w-3 h-3 animate-bounce" />
                                     </div>
-                                ))}
+                                </div>
+                            )}
+
+                            {/* Stories content */}
+                            {similarStories.map(story => (
+                                <div
+                                    key={story.id}
+                                    className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
+                                    onClick={() => setSelectedStory(story)}
+                                >
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                            {('resource_type' in story) ? String(story.resource_type) : 'Individual Patient Story'}
+                                        </span>
+                                    </div>
+                                    <h3 className="font-semibold mb-2 text-gray-900">{story.title}</h3>
+                                    <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
+                                    {story.link && (
+                                        <a
+                                            href={story.link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            View original post →
+                                        </a>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="absolute bottom-6 left-6 right-6">
                             <button
                                 onClick={() => router.push('/notes')}
                                 className="w-full bg-emerald-100 text-emerald-900 rounded-lg p-3 hover:bg-emerald-200 transition"
@@ -193,7 +225,19 @@ export default function HomePage() {
                         {/* Research Section */}
                         <section className="bg-white rounded-lg shadow p-6">
                             <h2 className="text-xl font-bold mb-4 text-gray-900">Latest Research on Meningioma</h2>
-                            <div className="space-y-4">
+                            <div
+                                className="space-y-4 h-[400px] overflow-y-auto pr-2 relative scroll-smooth"
+                                onScroll={handleResearchScroll}
+                            >
+                                {showResearchScroll && (
+                                    <div className="absolute right-0 top-0 p-2 bg-gradient-to-l from-white via-white to-transparent">
+                                        <div className="text-xs text-gray-500 flex items-center gap-1">
+                                            <span>Scroll</span>
+                                            <ChevronDown className="w-3 h-3 animate-bounce" />
+                                        </div>
+                                    </div>
+                                )}
+
                                 {research.map(item => (
                                     <a
                                         key={item.id}

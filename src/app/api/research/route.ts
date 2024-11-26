@@ -5,7 +5,6 @@ export async function GET() {
     try {
         const research = await prisma.patient_relevant_resources.findMany({
             orderBy: { createdAt: 'desc' },
-            take: 5,
             select: {
                 id: true,
                 title: true,
