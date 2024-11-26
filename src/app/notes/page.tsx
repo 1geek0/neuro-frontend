@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { TimelineModal } from '@/components/TimelineModal';
+import { useDemoContext } from '@/context/context';
+import { demoSimilarStories } from '@/Demo/demoSimilarStories';
 
 interface Story {
   id: string;
@@ -25,9 +27,12 @@ const StoryNotes = () => {
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
 
+  const { demo } = useDemoContext();
+
   useEffect(() => {
     let mounted = true;
     setIsLoading(true);
+    console.log(demo);
 
     const loadStories = async () => {
       try {
@@ -45,8 +50,14 @@ const StoryNotes = () => {
         }
       }
     };
-
-    loadStories();
+    if (demo) {
+      if(mounted) {
+        setIsLoading(false);
+        setStories(demoSimilarStories)
+      }
+    } else {
+      loadStories();
+    }
 
     return () => {
       mounted = false;

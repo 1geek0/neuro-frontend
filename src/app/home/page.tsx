@@ -42,6 +42,7 @@ export default function HomePage() {
 
     useEffect(() => {
         let isMounted = true
+        console.log(demo);
 
         const fetchData = async () => {
             try {
@@ -133,11 +134,11 @@ export default function HomePage() {
                                         className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                                         onClick={() => setSelectedStory(story)}
                                     >
-                                        <p className="text-sm text-gray-900 mb-2">
+                                        <p className="text-sm text-gray-400 mb-2">
                                             {new Date(story.createdAt['$date']).toLocaleDateString()}
                                         </p>
-                                        <h3 className="font-semibold mb-2">{story.title}</h3>
-                                        <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
+                                        <h3 className="font-semibold mb-2 text-gray-800">{story.title}</h3>
+                                        <p className="line-clamp-3 text-gray-500">{story.rawText}</p>
                                     </div>
                                 ))}
                             <button

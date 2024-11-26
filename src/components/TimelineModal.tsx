@@ -2,8 +2,10 @@ import { Modal } from './Modal'
 import { Loader2, Calendar } from 'lucide-react'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
 import { useState, useEffect } from 'react'
+import { useDemoContext } from '@/context/context';
+import { demoTimelineEvents } from '@/Demo/demoTimelineEvents';
 
-interface TimelineEvent {
+export interface TimelineEvent {
     phase: string
     type: string
     date: string
@@ -20,6 +22,7 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
     const [events, setEvents] = useState<TimelineEvent[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const authenticatedFetch = useAuthenticatedFetch()
+    const { demo } = useDemoContext();
 
     useEffect(() => {
         if (!isOpen) return
@@ -43,7 +46,12 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
             }
         }
 
-        fetchTimeline()
+        if(demo) {
+            setIsLoading(false);
+            setEvents(demoTimelineEvents)
+        } else {
+            fetchTimeline()
+        }
     }, [isOpen])
 
     const getPhaseColor = (phase: string) => {
