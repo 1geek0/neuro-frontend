@@ -9,6 +9,8 @@ import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X } from 'luc
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
 
+const DISCOURSE_URL = 'https://neuro86.discourse.group';
+
 interface Story {
     id: string;
     title: string | null;
@@ -45,23 +47,24 @@ export default function HomePage() {
     const authenticatedFetch = useAuthenticatedFetch()
     const [stateResources, setStateResources] = useState<StateResource[]>([])
     const [isLoadingResources, setIsLoadingResources] = useState(false)
+    const [isLoadingSSO, setIsLoadingSSO] = useState(false);
 
     useEffect(() => {
-        let isMounted = true
+        let isMounted = true;
 
         const fetchData = async () => {
             try {
                 const [storiesRes, researchRes] = await Promise.all([
                     authenticatedFetch('/api/similar-stories'),
                     authenticatedFetch('/api/research')
-                ])
+                ]);
 
                 if (!storiesRes.ok || !researchRes.ok) {
-                    throw new Error('Failed to fetch data')
+                    throw new Error('Failed to fetch data');
                 }
 
-                const stories = await storiesRes.json()
-                const researchData = await researchRes.json()
+                const stories = await storiesRes.json();
+                const researchData = await researchRes.json();
 
                 if (isMounted) {
                     const additionalStories = researchData
@@ -72,71 +75,97 @@ export default function HomePage() {
                         .map((item: Research) => ({
                             ...item,
                             rawText: item.content
-                        }))
+                        }));
 
                     const medicalResearch = researchData.filter((item: Research) =>
                         item.resource_type === 'Medical Research'
-                    )
+                    );
 
-                    setSimilarStories([...stories, ...additionalStories])
-                    setResearch(medicalResearch)
+                    setSimilarStories([...stories, ...additionalStories]);
+                    setResearch(medicalResearch);
                 }
             } catch (error) {
-                console.error('Error fetching data:', error)
+                console.error('Error fetching data:', error);
             }
-        }
+        };
 
-        fetchData()
+        fetchData();
 
         return () => {
-            isMounted = false
+            isMounted = false;
+        };
+    }, []); // This effect runs only once when component mounts
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const params = new URLSearchParams(window.location.search);
+        const sso = params.get('sso');
+        const sig = params.get('sig');
+
+        if (sso && sig) {
+            const handleSSOCallback = async () => {
+                setIsLoadingSSO(true);
+                try {
+                    const response = await authenticatedFetch('/api/discourse/sso', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ sso, sig })
+                    });
+
+                    if (response.ok) {
+                        const { ssoUrl } = await response.json();
+                        // Clear SSO parameters from URL
+                        window.history.replaceState({}, '', '/home');
+                        // Redirect to Discourse with SSO parameters
+                        window.location.href = ssoUrl;
+                    } else {
+                        const error = await response.text();
+                        console.error('Failed to create SSO link:', error);
+                        setIsLoadingSSO(false);
+                    }
+                } catch (error) {
+                    console.error('Error handling SSO callback:', error);
+                    setIsLoadingSSO(false);
+                }
+            };
+
+            handleSSOCallback();
         }
-    }, [])
+    }, []); // Run once on mount, but check URL params inside
 
     const handleDiscourseSSO = async () => {
         if (!user) return;
 
         try {
-            const response = await authenticatedFetch('/api/discourse/sso', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            if (response.ok) {
-                const { ssoUrl } = await response.json();
-                // Redirect to Discourse with SSO parameters
-                window.location.href = ssoUrl;
-            } else {
-                const error = await response.text();
-                console.error('Failed to create SSO link:', error);
+            setIsLoadingSSO(true);
+            if (typeof window !== 'undefined') {
+                window.location.href = `${DISCOURSE_URL}/session/sso`;
             }
         } catch (error) {
             console.error('Error during SSO:', error);
+            setIsLoadingSSO(false);
         }
     };
 
     const handleLogout = async () => {
         try {
             // Clear session cookie - fixed to include domain and secure flags
-            document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
-
-            // Auth0 logout and redirect
-            await logout({
-                logoutParams: {
-                    returnTo: window.location.origin
-                }
-            })
-
-            // Force navigation to home
-            router.push('/')
+            if (typeof window !== 'undefined') {
+                document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
+                // Auth0 logout and redirect
+                await logout({
+                    logoutParams: {
+                        returnTo: window.location.origin
+                    }
+                });
+            }
         } catch (error) {
-            console.error('Error during logout:', error)
-            // Fallback: force navigation even if Auth0 logout fails
-            router.push('/')
+            console.error('Error during logout:', error);
         }
-    }
+    };
 
     const fetchStateResources = async (selectedState: string) => {
         setIsLoadingResources(true)
@@ -165,6 +194,14 @@ export default function HomePage() {
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-white to-gray-50 py-8">
+            {isLoadingSSO ? (
+                <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+                    <div className="text-center">
+                        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+                        <p className="text-gray-600">Logging into Discourse...</p>
+                    </div>
+                </div>
+            ) : null}
             <div className="container mx-auto px-4">
                 <div className="flex justify-end mb-6">
                     <button
@@ -204,12 +241,12 @@ export default function HomePage() {
                                         )}
                                     </div>
                                 ))}
-                                                        <button
-                    onClick={handleDiscourseSSO}
-                    className="w-full bg-emerald-100 text-emerald-900 rounded-lg p-3 hover:bg-emerald-200 transition"
-                    >
-                    Go to Discourse Forum
-                </button>
+                            <button
+                                onClick={handleDiscourseSSO}
+                                className="w-full bg-emerald-100 text-emerald-900 rounded-lg p-3 hover:bg-emerald-200 transition"
+                            >
+                                Go to Discourse Forum
+                            </button>
 
                             <button
                                 onClick={() => router.push('/notes')}
@@ -422,4 +459,4 @@ export default function HomePage() {
             </Modal>
         </main>
     )
-} 
+}
