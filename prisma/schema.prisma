@@ -20,6 +20,7 @@ model User {
   sessionId String   @unique
   auth0Id   String   @unique
   username  String?
+  timelineJson  Json?
   stories   Story[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -39,14 +40,25 @@ model Story {
   @@index([embedding(type: Vector, dimension: 1536)])
 }
 
-model Research {
+model patient_relevant_resources {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  content     String
   title       String
-  url         String
-  abstract    String
+  link        String
+  resource_type String
   embedding   Float[]  // Vector embedding for similarity search
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([embedding(type: Vector, dimension: 1536)])
+}
+
+
+model state_medical_resources {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String
+  state       String
+  facility_type String
 }
