@@ -63,7 +63,9 @@ export default function OnboardingPage() {
   const handleDemo = () => {
     try {
       setDemo(true);
-      router.push('/home');
+      handleSignIn();
+      console.log('demo set to true');
+      // router.push('/home');
     } catch (error) {
       console.error('Error setting demo:', error);
       alert('Failed to set demo. Please try again.');

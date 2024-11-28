@@ -42,7 +42,6 @@ export default function HomePage() {
 
     useEffect(() => {
         let isMounted = true
-        console.log(demo);
 
         const fetchData = async () => {
             try {
@@ -104,22 +103,13 @@ export default function HomePage() {
         <main className="min-h-screen bg-gradient-to-b from-white to-gray-50 py-8">
             <div className="container mx-auto px-4">
                 <div className="flex justify-end mb-6">
-                    {!demo ? <button
+                    <button
                         onClick={handleLogout}
                         className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-300 shadow-sm"
                     >
                         <LogOut className="w-4 h-4" />
-                        Logout
+                        {demo ? 'Quit Demo Mode' : 'Logout'}
                     </button>
-
-                        :
-                        <button
-                            onClick={() => setDemo(false)}
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-300 shadow-sm"
-                        >
-                            Quit Demo Mode
-                        </button>
-                    }
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

@@ -32,7 +32,6 @@ const StoryNotes = () => {
   useEffect(() => {
     let mounted = true;
     setIsLoading(true);
-    console.log(demo);
 
     const loadStories = async () => {
       try {
