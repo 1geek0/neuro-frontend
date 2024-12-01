@@ -9,7 +9,6 @@ import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X } from 'luc
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
 import { demoSimilarStories } from '@/Demo/demoSimilarStories'
-import { useDemoContext } from '@/context/context';
 
 
 
@@ -49,11 +48,13 @@ export default function HomePage() {
     const authenticatedFetch = useAuthenticatedFetch()
     const [stateResources, setStateResources] = useState<StateResource[]>([])
     const [isLoadingResources, setIsLoadingResources] = useState(false)
-
-    const { demo, setDemo } = useDemoContext();
+    const [demoMode, setDemoMode] = useState<Boolean>(false);
 
     useEffect(() => {
         let isMounted = true
+        if(localStorage.getItem('demoMode') === 'True') {
+            setDemoMode(true);
+        }
 
         const fetchData = async () => {
             try {
@@ -92,7 +93,7 @@ export default function HomePage() {
             }
         }
 
-        if (demo) {
+        if (localStorage.getItem('demoMode') === 'True') {
             setSimilarStories(demoSimilarStories);
         } else {
             fetchData();
@@ -107,7 +108,7 @@ export default function HomePage() {
         try {
             // Clear session cookie - fixed to include domain and secure flags
             document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
-
+            localStorage.setItem('demoMode', 'False');
             // Auth0 logout and redirect
             await logout({
                 logoutParams: {
@@ -159,7 +160,7 @@ export default function HomePage() {
                         className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-300 shadow-sm"
                     >
                         <LogOut className="w-4 h-4" />
-                        {demo ? 'Quit Demo Mode' : 'Logout'}
+                        {demoMode ? 'Quit Demo Mode' : 'Logout'}
                     </button>
                 </div>
 

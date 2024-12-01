@@ -6,17 +6,16 @@ import { useAuth0 } from '@auth0/auth0-react'
 import StoryInput from '@/components/StoryInput'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
-import { useDemoContext } from '@/context/context';
 
 export default function OnboardingPage() {
   const router = useRouter()
   const { loginWithPopup } = useAuth0()
   const authenticatedFetch = useAuthenticatedFetch()
   const [preFilledStory, setPreFilledStory] = useState<string | null>(null); // State for pre-filled story
-  const { setDemo } = useDemoContext();
 
   const handleSignIn = async () => {
     try {
+      localStorage.setItem('demoMode','False');
       // Trigger Auth0 login
       await loginWithPopup({
         authorizationParams: {
@@ -62,8 +61,8 @@ export default function OnboardingPage() {
 
   const handleDemo = () => {
     try {
-      setDemo(true);
       handleSignIn();
+      localStorage.setItem('demoMode','True');
       console.log('demo set to true');
       // router.push('/home');
     } catch (error) {

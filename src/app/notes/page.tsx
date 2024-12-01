@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { TimelineModal } from '@/components/TimelineModal';
-import { useDemoContext } from '@/context/context';
 import { demoSimilarStories } from '@/Demo/demoSimilarStories';
 
 interface Story {
@@ -27,12 +26,14 @@ const StoryNotes = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
-
-  const { demo } = useDemoContext();
+  const [demoMode, setDemoMode] = useState<Boolean>(false);
 
   useEffect(() => {
     let mounted = true;
     setIsLoading(true);
+    if(localStorage.getItem('demoMode') === 'True') {
+      setDemoMode(true);
+    }
 
     const loadStories = async () => {
       try {
@@ -50,7 +51,7 @@ const StoryNotes = () => {
         }
       }
     };
-    if (demo) {
+    if (localStorage.getItem('demoMode') === 'True') {
       if(mounted) {
         setIsLoading(false);
         setStories(demoSimilarStories)
