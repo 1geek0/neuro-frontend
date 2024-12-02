@@ -61,11 +61,25 @@ def generate_embedding(text: str) -> list:
         print(f"\nError generating embedding: {e}")
         raise
 
+def delete_existing_data():
+    """Delete all data from specified MongoDB collections."""
+    print("\n🗑️ Deleting existing data from MongoDB collections...")
+    try:
+        for _, collection_name in tables.items():
+            mongo_db[collection_name].delete_many({})  # Delete all documents
+            print(f"✅ Cleared collection: {collection_name}")
+    except Exception as e:
+        print(f"❌ Error deleting data: {e}")
+        raise
+
 def fetch_and_store_records():
     """Fetch records from multiple Airtable tables and store them in MongoDB."""
     try:
         # Validate environment variables
         validate_env_vars()
+
+        # Clear existing data from MongoDB
+        delete_existing_data()
 
         # Process each table in Airtable
         for table_name, mongo_collection_name in tables.items():
