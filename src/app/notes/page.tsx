@@ -35,8 +35,12 @@ const StoryNotes = () => {
         const response = await authenticatedFetch('/api/stories');
         if (!response.ok) throw new Error('Failed to fetch stories');
         const data = await response.json();
+        const stories = data.map((story: Story) => ({
+          ...story,
+          createdAt: {$date : story.createdAt}
+        }));
         if (mounted) {
-          setStories(data);
+          setStories(stories);
         }
       } catch (error) {
         console.error('Error fetching stories:', error);

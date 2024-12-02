@@ -75,10 +75,11 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                         {events.map((event, index) => (
                             <div key={index} className="relative">
                                 <div className="flex items-start gap-4">
-                                    <div className="flex-shrink-0 mt-1">
+                                    <div className="flex-shrink-0 my-auto ">
                                         <Calendar className="w-5 h-5 text-gray-400" />
+                                        
                                     </div>
-                                    <div className="flex-grow">
+                                    <div className="flex-grow relative">
                                         <div className="bg-white rounded-lg border p-4">
                                             <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mb-2 ${getPhaseColor(event.phase)}`}>
                                                 {event.phase}
@@ -97,11 +98,12 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                                                 })}
                                             </div>
                                         </div>
+                                        {index < events.length - 1 && (
+                                            <div className="absolute left-[50%] -translate-x-1/2 top-[100%] w-0.5 bg-gray-200 h-full" />
+                                        )}
                                     </div>
                                 </div>
-                                {index < events.length - 1 && (
-                                    <div className="absolute left-[11px] top-8 bottom-0 w-0.5 bg-gray-200 h-8" />
-                                )}
+
                             </div>
                         ))}
                     </div>
