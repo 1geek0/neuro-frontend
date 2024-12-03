@@ -35,6 +35,12 @@ export default function OnboardingPage() {
     }
   };
 
+  const handleDemoMode = () => {
+    localStorage.setItem('demoMode', 'True');
+    handleSignIn();
+    router.push('/home');
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       <div className="container mx-auto py-8">
@@ -44,10 +50,16 @@ export default function OnboardingPage() {
             <button
               onClick={handleSignIn}
               className="text-blue-600 hover:text-blue-800 font-medium underline"
-            >
+            > 
               Sign in here
             </button>
           </p>
+          <button
+            onClick={handleDemoMode}
+            className="text-blue-600 hover:text-blue-800 font-medium underline"
+          >
+            Demo Mode
+          </button>
         </div>
         <ErrorBoundary>
           <StoryInput redirectPath="/home" />
