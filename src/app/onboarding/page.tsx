@@ -33,6 +33,11 @@ export default function OnboardingPage() {
   const handleDemoMode = async () => {
     try {
       localStorage.setItem('demoMode', 'True')
+      await loginWithPopup({
+        authorizationParams: {
+          screen_hint: 'signin',
+        },
+      })
       router.push('/home')
     } catch (error) {
       console.error('Error during demo mode activation:', error)
