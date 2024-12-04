@@ -33,16 +33,19 @@ export default function OnboardingPage() {
   const handleDemoMode = async () => {
     try {
       localStorage.setItem('demoMode', 'True')
+
       await loginWithPopup({
         authorizationParams: {
           screen_hint: 'signin',
         },
       })
+
       router.push('/home')
     } catch (error) {
       console.error('Error during demo mode activation:', error)
     }
   }
+
 
   useEffect(() => {
     if (isAuthenticated || demoMode) {
@@ -50,7 +53,6 @@ export default function OnboardingPage() {
         try {
           const response = await authenticatedFetch('/api/check-story')
           const { hasStory } = await response.json()
-
           if (hasStory) {
             router.push('/home')
           }
