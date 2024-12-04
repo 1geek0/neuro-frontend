@@ -55,6 +55,8 @@ export async function middleware(request: NextRequest) {
 export const config = {
     matcher: [
         '/api/story',
+        '/api/stories',
+        '/api/stories/:path*',
         '/api/similar-stories',
         '/api/research',
         '/api/check-story',

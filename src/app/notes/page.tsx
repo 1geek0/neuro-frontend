@@ -23,7 +23,6 @@ const StoryNotes = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState('');
   const [showTimeline, setShowTimeline] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
   const [demoMode, setDemoMode] = useState<Boolean>(false);
@@ -110,24 +109,6 @@ const StoryNotes = () => {
     }
   };
 
-  const handleDeleteAllStories = async () => {
-    try {
-      const response = await authenticatedFetch('/api/stories/delete-all', {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete stories');
-      }
-
-      setStories([]);
-      setShowDeleteConfirm(false);
-    } catch (error) {
-      console.error('Error deleting stories:', error);
-      alert('Failed to delete stories. Please try again.');
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -161,12 +142,6 @@ const StoryNotes = () => {
               className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
             >
               View Timeline
-            </button>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-            >
-              Delete All Stories
             </button>
             <button
               onClick={handleAddStory}
@@ -245,31 +220,6 @@ const StoryNotes = () => {
         onClose={() => setShowTimeline(false)}
       />
 
-      {/* Delete All Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-xl font-semibold mb-4 text-red-600">Delete All Stories?</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete all your stories? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteAllStories}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-              >
-                Delete All
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
