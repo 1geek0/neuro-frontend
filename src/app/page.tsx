@@ -12,6 +12,13 @@ export default function LandingPage() {
   const { isAuthenticated, loginWithPopup } = useAuth0()
   const router = useRouter()
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/home');
+    }
+    localStorage.setItem('demoMode','False');
+  }, [isAuthenticated, router]);
+
   const handleLogin = async () => {
     try {
       localStorage.setItem('demoMode','False');
