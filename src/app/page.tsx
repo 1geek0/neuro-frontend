@@ -97,8 +97,8 @@ export default function LandingPage() {
                 <p className="text-xl text-gray-600 max-w-xl">
                   An anonymous community where you can share, learn, and connect with others facing similar challenges.
                 </p>
-                <div className="flex space-x-4">
-                  <Link href="/onboarding">
+                <div className="space-y-6">
+                  <Link href="/tutorial">
                     <Button 
                       size="lg" 
                       className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
@@ -222,7 +222,7 @@ export default function LandingPage() {
                   Share, learn, and find the support you deserve.
                 </p>
               </div>
-              <Link href="/onboarding">
+              <Link href="/tutorial">
                 <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white text-lg px-8 py-3 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105">
                   Join the Community
                   <ArrowRight className="ml-2 h-5 w-5" />
