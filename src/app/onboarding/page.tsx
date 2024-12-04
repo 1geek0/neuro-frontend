@@ -13,6 +13,7 @@ export default function OnboardingPage() {
   const router = useRouter()
   const { loginWithPopup, isAuthenticated } = useAuth0()
   const authenticatedFetch = useAuthenticatedFetch()
+  const demoMode = typeof window !== 'undefined' && localStorage.getItem('demoMode') === 'True'
 
   const handleSignIn = async () => {
     try {
@@ -32,14 +33,14 @@ export default function OnboardingPage() {
   const handleDemoMode = async () => {
     try {
       localStorage.setItem('demoMode', 'True')
-      await handleSignIn()
+      router.push('/home')
     } catch (error) {
-      console.error('Error during demo mode sign in:', error)
+      console.error('Error during demo mode activation:', error)
     }
   }
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated || demoMode) {
       const checkUserStory = async () => {
         try {
           const response = await authenticatedFetch('/api/check-story')
@@ -55,10 +56,10 @@ export default function OnboardingPage() {
 
       checkUserStory()
     }
-  }, [isAuthenticated, authenticatedFetch, router])
+  }, [isAuthenticated, demoMode, authenticatedFetch, router])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm px-4 lg:px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center transition-all duration-300 hover:scale-105 hover:rotate-3">
@@ -68,33 +69,30 @@ export default function OnboardingPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
-        <div className="container mx-auto py-8 px-4">
-          <div className="max-w-4xl mx-auto">
-            {/* Sign In Section */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-8 text-center">
-              <p className="text-gray-900 mb-4">
-                Already shared your story with us?
-              </p>
-              <div className="space-y-4">
+      <main className="flex-1 bg-gradient-to-b from-white to-purple-50">
+        <div className="container mx-auto py-12 px-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Welcome to neuro86</h2>
+              <p className="text-lg text-gray-700 mb-6">Share your story to unlock personalized insights powered by AI.</p>
+              <div className="flex justify-center space-x-4">
                 <button
                   onClick={handleSignIn}
-                  className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
+                  className="bg-purple-600 text-white rounded-full px-6 py-3 hover:bg-purple-700 transition ease-in-out duration-300 font-medium"
                 >
-                  Sign In <ArrowRight className="h-4 w-4" />
+                  Sign In
                 </button>
                 <button
                   onClick={handleDemoMode}
-                  className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
+                  className="bg-gray-300 text-gray-800 rounded-full px-6 py-3 hover:bg-gray-400 transition ease-in-out duration-300 font-medium"
                 >
-                  Try Demo Mode <ArrowRight className="h-4 w-4" />
+                  Try Demo Mode
                 </button>
               </div>
             </div>
-
-            {/* Story Input Section */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Share Your Story</h2>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-4">Share Your Story</h3>
+              <p className="text-md text-gray-600 mb-6">Tell us about your experiences, and we'll provide insights tailored to you.</p>
               <ErrorBoundary>
                 <StoryInput redirectPath="/home" />
               </ErrorBoundary>
