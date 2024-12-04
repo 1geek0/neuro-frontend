@@ -1,14 +1,16 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Mic, MicOff, Loader2 } from 'lucide-react'
+import { Mic, MicOff, Loader2, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
+
 interface StoryInputProps {
   redirectPath: string;
   defaultValue?: string;
 }
+
 export default function StoryInput({ redirectPath, defaultValue }: StoryInputProps)  {
   const [story, setStory] = useState<string>(defaultValue || '')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -54,7 +56,7 @@ export default function StoryInput({ redirectPath, defaultValue }: StoryInputPro
   const isButtonDisabled = !story.trim() || isSubmitting || isLoading;
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-4 space-y-4">
+    <div className="space-y-6">
       <h1 className="text-2xl font-bold text-center mb-8 text-black">
         Can you tell us about your experience with meningioma?
       </h1>
@@ -72,7 +74,7 @@ My current medications include...
 Some background about my overall health:
 What I've learned from this experience:
 Advice I'd give to others facing a similar diagnosis:"
-          className="w-full h-64 p-4 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500 text-black"
+          className="w-full h-64 p-4 border rounded-lg resize-none bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
         />
       </div>
 
@@ -80,18 +82,22 @@ Advice I'd give to others facing a similar diagnosis:"
         <button
           onClick={handleSubmit}
           disabled={isButtonDisabled}
-          className={`px-6 py-2 rounded-lg text-white font-medium
-            ${isButtonDisabled
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-green-500 hover:bg-green-600'}`}
+          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-300 ease-in-out ${
+            isButtonDisabled
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-purple-100 text-purple-600 hover:bg-purple-200 hover:scale-105'
+          }`}
         >
           {isSubmitting ? (
-            <div className="flex items-center space-x-2">
+            <>
               <Loader2 className="w-5 h-5 animate-spin" />
               <span>Processing...</span>
-            </div>
+            </>
           ) : (
-            <span>Next</span>
+            <>
+              <span>Continue</span>
+              <ArrowRight className="w-4 h-4" />
+            </>
           )}
         </button>
       </div>
