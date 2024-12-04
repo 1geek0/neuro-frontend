@@ -48,7 +48,6 @@ const ReverseTimeline = () => {
     const fetchTimeline = async () => {
       try {
         const timelineRes = await authenticatedFetch('/api/timeline')
-        console.log(timelineRes);
 
         if (!timelineRes.ok) {
           throw new Error('Failed to fetch timeline')

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { useRouter } from 'next/navigation'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Modal } from '@/components/Modal'
@@ -8,10 +8,11 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X } from 'lucide-react'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
+import { demoSimilarStories } from '@/Demo/demoSimilarStories'
 
 const DISCOURSE_URL = 'https://neuro86.discourse.group';
 
-interface Story {
+export interface Story {
     id: string;
     title: string | null;
     rawText: string;
@@ -48,9 +49,13 @@ export default function HomePage() {
     const [stateResources, setStateResources] = useState<StateResource[]>([])
     const [isLoadingResources, setIsLoadingResources] = useState(false)
     const [isLoadingSSO, setIsLoadingSSO] = useState(false);
+    const [demoMode, setDemoMode] = useState<Boolean>(false);
 
     useEffect(() => {
         let isMounted = true;
+        if(localStorage.getItem('demoMode') === 'True') {
+            setDemoMode(true);
+        }
 
         const fetchData = async () => {
             try {
@@ -89,7 +94,11 @@ export default function HomePage() {
             }
         };
 
-        fetchData();
+        if (localStorage.getItem('demoMode') === 'True') {
+            setSimilarStories(demoSimilarStories);
+        } else {
+            fetchData();
+        }
 
         return () => {
             isMounted = false;
@@ -153,19 +162,22 @@ export default function HomePage() {
     const handleLogout = async () => {
         try {
             // Clear session cookie - fixed to include domain and secure flags
-            if (typeof window !== 'undefined') {
-                document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
-                // Auth0 logout and redirect
-                await logout({
-                    logoutParams: {
-                        returnTo: window.location.origin
-                    }
-                });
-            }
+            document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
+
+            // Auth0 logout and redirect
+            await logout({
+                logoutParams: {
+                    returnTo: window.location.origin
+                }
+            })
+
+            // Force navigation to home
+            router.push('/')
         } catch (error) {
             console.error('Error during logout:', error);
         }
     };
+;
 
     const fetchStateResources = async (selectedState: string) => {
         setIsLoadingResources(true)
@@ -209,7 +221,7 @@ export default function HomePage() {
                         className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-300 shadow-sm"
                     >
                         <LogOut className="w-4 h-4" />
-                        Logout
+                        {demoMode ? 'Quit Demo Mode' : 'Logout'}
                     </button>
                 </div>
 
@@ -225,6 +237,7 @@ export default function HomePage() {
                                         className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                                         onClick={() => setSelectedStory(story)}
                                     >
+
 
                                         <h3 className="font-semibold mb-2 text-gray-900">{story.title}</h3>
                                         <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
