@@ -11,36 +11,51 @@ import Link from 'next/link'
 
 export default function OnboardingPage() {
   const router = useRouter()
-  const { loginWithPopup } = useAuth0()
+  const { loginWithPopup, isAuthenticated } = useAuth0()
   const authenticatedFetch = useAuthenticatedFetch()
 
   const handleSignIn = async () => {
     try {
-      // Trigger Auth0 login
+      localStorage.setItem('demoMode', 'False')
       await loginWithPopup({
         authorizationParams: {
           screen_hint: 'signin',
-        }
-      });
-
-      // After successful Auth0 login, check if user has a story
-      const response = await authenticatedFetch('/api/check-story');
-      const { hasStory } = await response.json();
-
-      if (hasStory) {
-        router.push('/home');
-      }
+        },
+      })
+      router.push('/home')
     } catch (error) {
-      console.error('Error during sign in:', error);
-      alert('Failed to sign in. Please try again.');
+      console.error('Error during sign in:', error)
+      alert('Failed to sign in. Please try again.')
     }
-  };
+  }
 
-  const handleDemoMode = () => {
-    localStorage.setItem('demoMode', 'True');
-    handleSignIn();
-    router.push('/home');
-  };
+  const handleDemoMode = async () => {
+    try {
+      localStorage.setItem('demoMode', 'True')
+      await handleSignIn()
+    } catch (error) {
+      console.error('Error during demo mode sign in:', error)
+    }
+  }
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const checkUserStory = async () => {
+        try {
+          const response = await authenticatedFetch('/api/check-story')
+          const { hasStory } = await response.json()
+
+          if (hasStory) {
+            router.push('/home')
+          }
+        } catch (error) {
+          console.error('Error checking user story:', error)
+        }
+      }
+
+      checkUserStory()
+    }
+  }, [isAuthenticated, authenticatedFetch, router])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 flex flex-col">
@@ -88,5 +103,5 @@ export default function OnboardingPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }
