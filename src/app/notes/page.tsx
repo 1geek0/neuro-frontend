@@ -130,8 +130,8 @@ const StoryNotes = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/home')}
-              className="p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100"
-            >
+              className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105"
+              >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-2xl font-bold text-gray-900">My Story Notes</h1>
