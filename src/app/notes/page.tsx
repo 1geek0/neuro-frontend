@@ -118,7 +118,7 @@ const StoryNotes = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 py-8">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="bg-blue-100 text-blue-800 p-4 rounded-lg mb-6">
           <p className="text-sm">
@@ -139,13 +139,13 @@ const StoryNotes = () => {
           <div className="flex gap-4">
             <button
               onClick={() => setShowTimeline(true)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center"
             >
               View Timeline
             </button>
             <button
               onClick={handleAddStory}
-              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105"
             >
               <PlusCircle className="w-5 h-5" />
               Add New Story
@@ -157,7 +157,7 @@ const StoryNotes = () => {
           {stories.map((story, index) => (
             <div
               key={story.id}
-              className="bg-white rounded-lg shadow-sm border p-6 space-y-4"
+              className="bg-white rounded-lg shadow p-6 space-y-4"
             >
               <div className="flex justify-between items-start">
                 <div>
@@ -200,14 +200,14 @@ const StoryNotes = () => {
             <div className="flex justify-end gap-4 mt-4">
               <button
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-              >
+                className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105"
+                >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              >
+                className="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center"
+                >
                 Save Changes
               </button>
             </div>
