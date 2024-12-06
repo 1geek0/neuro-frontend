@@ -17,6 +17,7 @@ export function Auth0Provider({ children }: { children: React.ReactNode }) {
             onRedirectCallback={onRedirectCallback}
             useRefreshTokens={true}
             cacheLocation="localstorage"
+            useRefreshTokensFallback={true}
         >
             {children}
         </Auth0ProviderBase>
