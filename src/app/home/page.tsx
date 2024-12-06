@@ -304,7 +304,7 @@ export default function HomePage() {
                                     </div>
                                 ))}
                             <button
-                onClick={() => window.open(DISCOURSE_URL, '_blank')}
+                onClick={() => window.open(DISCOURSE_URL, '__blank')}
                 className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
                             >
                                 Go to Discourse Forum <ArrowRight className="h-4 w-4" />
