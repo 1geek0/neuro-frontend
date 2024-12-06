@@ -266,9 +266,9 @@ export default function HomePage() {
                         <h2 className="text-xl font-bold mb-4 text-gray-900">Find people with stories like you</h2>
                         <div className="space-y-4">
                             {
-                                similarStories.map(story => (
+                                similarStories.map((story,index) => (
                                     <div
-                                        key={story.id}
+                                        key={index}
                                         className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                                         onClick={() => setSelectedStory(story)}
                                     >
