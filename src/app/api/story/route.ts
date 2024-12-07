@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getOrCreateUser } from '@/lib/db'
+import { getOrCreateUser, createStory } from '@/lib/db'
 import { generateEmbedding, processStoryToTimeline, generateTitle } from '@/lib/embeddings'
 import prisma from '@/lib/db'
 
@@ -15,82 +15,36 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { story } = await req.json()
+    const sessionId = req.cookies.get("sessionId")?.value || undefined;
+    const { user } = await getOrCreateUser(sessionId, auth0Id, username || undefined);
 
-    if (!story || typeof story !== 'string') {
+    const body = await req.json()
+    const { story } = body
+
+    if (!story) {
       return NextResponse.json(
-        { error: 'Invalid story format' },
+        { error: 'Story content is required' },
         { status: 400 }
       )
     }
 
-    const sessionId = req.cookies.get('sessionId')?.value
+    // Process story and create timeline
+    const timelineJson = await processStoryToTimeline(story)
+    const embedding = await generateEmbedding(story)
 
-    const { user, sessionId: newSessionId } = await getOrCreateUser(
-      sessionId,
-      auth0Id,
-      username || undefined
-    )
-
-    // Process the story with proper error handling
-    try {
-      const [embedding, title] = await Promise.all([
-        generateEmbedding(story),
-        generateTitle(story)
-      ])
-
-      // Get all user's stories
-      const existingStories = await prisma.story.findMany({
-        where: { userId: user.id },
-        select: { rawText: true }
-      })
-
-      // Combine all stories including the new one
-      const allStories = [...existingStories.map(s => s.rawText), story]
-      const combinedText = allStories.join('\n\n')
-
-      // Generate timeline from combined stories
-      const timelineJson = await processStoryToTimeline(combinedText)
-
-      // Save to database
-      await prisma.story.create({
-        data: {
-          userId: user.id,
-          title,
-          rawText: story,
-          embedding,
-          timelineJson
-        }
-      })
-
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { timelineJson }
-      })
-
-      const response = NextResponse.json({ success: true })
-
-      if (!sessionId) {
-        response.cookies.set('sessionId', newSessionId, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          maxAge: 60 * 60 * 24 * 365 // 1 year
-        })
-      }
-
-      return response
-    } catch (error) {
-      console.error('Error processing story:', error)
-      return NextResponse.json(
-        { error: 'Failed to process story' },
-        { status: 500 }
-      )
+    // Create story in database
+    const response = await createStory(user.id, story, timelineJson, embedding)
+    
+    if (!response) {
+      throw new Error('Failed to create story')
     }
+
+    return NextResponse.json({ success: true })
+
   } catch (error) {
-    console.error('Error in story endpoint:', error)
+    console.error('Error processing story:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to process story' },
       { status: 500 }
     )
   }
