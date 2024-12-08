@@ -34,11 +34,11 @@ export default function OnboardingPage() {
     try {
       localStorage.setItem('demoMode', 'True')
 
-      await loginWithPopup({
-        authorizationParams: {
-          screen_hint: 'signin',
-        },
-      })
+      // await loginWithPopup({
+      //   authorizationParams: {
+      //     screen_hint: 'signin',
+      //   },
+      // })
 
       router.push('/home')
     } catch (error) {

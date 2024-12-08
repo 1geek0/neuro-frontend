@@ -16,7 +16,6 @@ interface Story {
 }
 
 const StoryNotes = () => {
-  useAuthRedirect();
   const [stories, setStories] = useState<Story[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
@@ -26,7 +25,10 @@ const StoryNotes = () => {
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
   const [demoMode, setDemoMode] = useState<Boolean>(false);
-
+  
+  if(localStorage.getItem('demoMode') === 'False') {
+    useAuthRedirect();
+  }
   useEffect(() => {
     let mounted = true;
     setIsLoading(true);
