@@ -44,7 +44,7 @@ export default function StoryInput({ redirectPath, defaultValue }: StoryInputPro
         throw new Error('Failed to submit story');
       }
 
-      router.push('/home');
+      router.push(redirectPath);
     } catch (error) {
       console.error('Error submitting story:', error)
       alert('Failed to submit story. Please try again.')
