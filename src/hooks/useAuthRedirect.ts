@@ -8,7 +8,7 @@ export function useAuthRedirect() {
     const router = useRouter()
     const { isAuthenticated, isLoading } = useAuth0()
     useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
+        if (!isLoading && !isAuthenticated && localStorage.getItem("demoMode") == "False") {
             router.push('/')
         }
     }, [isLoading, isAuthenticated, router])
