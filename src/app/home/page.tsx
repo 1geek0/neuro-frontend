@@ -38,6 +38,7 @@ interface StateResource {
 }
 
 export default function HomePage() {
+    useAuthRedirect();
     const [similarStories, setSimilarStories] = useState<Story[]>([])
     const [research, setResearch] = useState<Research[]>([])
     const [state, setState] = useState('')
@@ -50,9 +51,6 @@ export default function HomePage() {
     const [isLoadingSSO, setIsLoadingSSO] = useState(false);
     const [demoMode, setDemoMode] = useState<Boolean>(false);
 
-    if(localStorage.getItem('demoMode') === 'False') {
-        useAuthRedirect();
-    }
 
     useEffect(() => {
         let isMounted = true
@@ -196,10 +194,10 @@ export default function HomePage() {
                 document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
                 localStorage.setItem('demoMode', 'False');
                 // Auth0 logout and redirect
-                if(!demoMode) {
+                if (!demoMode) {
                     await logout({
                         logoutParams: {
-                        returnTo: window.location.origin
+                            returnTo: window.location.origin
                         }
                     })
                     // Force navigation to home
