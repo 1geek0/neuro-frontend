@@ -8,7 +8,7 @@ export interface TimelineEvent {
     phase: string
     type: string
     date: string
-    symptoms: string[]
+    symptoms?: string[]
     description: string[]
     outcome?: string
 }
