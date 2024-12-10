@@ -25,6 +25,7 @@ const patientTimelineFormat = {
       date: "YYYY-MM-DD", // Example: "2024-01-15"
       description: "Detailed description of the event", // Example: "Patient experienced persistent headaches"
       // Optional additional fields depending on the event type:
+      symptoms : ["Symptoms of the disease"], // Example for any symptoms observed
       drug_name: "Optional drug name", // Example for medication events
       test_type: "Optional test type", // Example for test events
       outcome: "Optional outcome", // Example for follow-up events

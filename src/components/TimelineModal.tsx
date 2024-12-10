@@ -8,8 +8,9 @@ export interface TimelineEvent {
     phase: string
     type: string
     date: string
+    symptoms : string[]
     description: string[]
-    details?: string
+    outcomes?: string
 }
 
 interface TimelineModalProps {
@@ -94,16 +95,22 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                                             <div className="font-medium text-gray-900">
                                                 {Array.isArray(event.description) ? event.description.join(', ') : event.description}
                                             </div>
-                                            {event.details && (
-                                                <p className="text-sm text-gray-600 mt-1">{event.details}</p>
+                                            {event.symptoms && (
+                                                    event.symptoms.map((symptom,index)=>(
+                                                        <span  key={index} className="text-sm text-gray-600 mt-1">{symptom}{index!== event.symptoms.length-1 ? ", ":""}</span>
+
+                                                    ))
                                             )}
-                                            <div className="text-xs text-gray-400 mt-2">
+                                            <div>
+                                                {event.outcomes}
+                                            </div>
+                                            {event.date && <div className="text-xs text-gray-400 mt-2">
                                                 {new Date(event.date).toLocaleDateString('en-US', {
                                                     year: 'numeric',
                                                     month: 'long',
                                                     day: 'numeric'
                                                 })}
-                                            </div>
+                                            </div>}
                                         </div>
                                         {index < events.length - 1 && (
                                             <div className="absolute left-[50%] -translate-x-1/2 top-[100%] w-0.5 bg-gray-200 h-full" />
