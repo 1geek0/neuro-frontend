@@ -1,12 +1,17 @@
 import { useAuth0 } from '@auth0/auth0-react'
 
 export function useAuthenticatedFetch() {
-    const { getAccessTokenSilently, getIdTokenClaims } = useAuth0()
+    const { getAccessTokenSilently, getIdTokenClaims, loginWithRedirect } = useAuth0()
 
     return async (url: string, options: RequestInit = {}) => {
         try {
             const [accessToken, idTokenClaims] = await Promise.all([
-                getAccessTokenSilently(),
+                getAccessTokenSilently({
+                    authorizationParams: {
+                        audience: process.env.NEXT_PUBLIC_AUTH0_AUDIENCE,
+                        scope: 'openid profile email offline_access'
+                    }
+                }),
                 getIdTokenClaims()
             ]);
 
@@ -26,6 +31,14 @@ export function useAuthenticatedFetch() {
             })
         } catch (error) {
             console.error('Error in authenticated fetch:', error)
+            // If token refresh fails, redirect to login
+            if (error instanceof Error && error.message.includes('Missing Refresh Token')) {
+                await loginWithRedirect({
+                    authorizationParams: {
+                        scope: 'openid profile email offline_access'
+                    }
+                })
+            }
             throw error
         }
     }
