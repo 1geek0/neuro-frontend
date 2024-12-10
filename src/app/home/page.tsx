@@ -38,7 +38,7 @@ interface StateResource {
 }
 
 export default function HomePage() {
-    useAuthRedirect()
+    useAuthRedirect();
     const [similarStories, setSimilarStories] = useState<Story[]>([])
     const [research, setResearch] = useState<Research[]>([])
     const [state, setState] = useState('')
@@ -50,6 +50,7 @@ export default function HomePage() {
     const [isLoadingResources, setIsLoadingResources] = useState(false)
     const [isLoadingSSO, setIsLoadingSSO] = useState(false);
     const [demoMode, setDemoMode] = useState<Boolean>(false);
+
 
     useEffect(() => {
         let isMounted = true
@@ -193,14 +194,18 @@ export default function HomePage() {
                 document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
                 localStorage.setItem('demoMode', 'False');
                 // Auth0 logout and redirect
-                await logout({
-                    logoutParams: {
-                        returnTo: window.location.origin
-                    }
-                })
 
-                // Force navigation to home
-                router.push('/')
+                if (!demoMode) {
+                    await logout({
+                        logoutParams: {
+                            returnTo: window.location.origin
+                        }
+                    })
+                    // Force navigation to home
+                    router.push('/')
+                } else {
+                    router.push('/onboarding')
+                }
             }
 
         } catch (error) {
@@ -266,7 +271,7 @@ export default function HomePage() {
                         <h2 className="text-xl font-bold mb-4 text-gray-900">Find people with stories like you</h2>
                         <div className="space-y-4">
                             {
-                                similarStories.map(story => (
+                                similarStories.map((story, index) => (
                                     <div
                                         key={story.id}
                                         className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
