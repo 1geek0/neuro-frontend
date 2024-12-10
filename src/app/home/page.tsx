@@ -53,7 +53,7 @@ export default function HomePage() {
 
     useEffect(() => {
         let isMounted = true
-        if(localStorage.getItem('demoMode') === 'True') {
+        if (localStorage.getItem('demoMode') === 'True') {
             setDemoMode(true);
         }
 
@@ -191,18 +191,18 @@ export default function HomePage() {
             // Clear session cookie - fixed to include domain and secure flags
             if (typeof window !== 'undefined') {
                 document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
-            localStorage.setItem('demoMode', 'False');
-            // Auth0 logout and redirect
-            await logout({
-                logoutParams: {
-                    returnTo: window.location.origin
-                }
-            })
+                localStorage.setItem('demoMode', 'False');
+                // Auth0 logout and redirect
+                await logout({
+                    logoutParams: {
+                        returnTo: window.location.origin
+                    }
+                })
 
-            // Force navigation to home
-            router.push('/')
+                // Force navigation to home
+                router.push('/')
             }
-            
+
         } catch (error) {
             console.error('Error during logout:', error);
         }
@@ -304,8 +304,8 @@ export default function HomePage() {
                                     </div>
                                 ))}
                             <button
-                onClick={() => window.open(DISCOURSE_URL, '_blank')}
-                className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
+                                onClick={() => window.open(DISCOURSE_URL, '_blank')}
+                                className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
                             >
                                 Go to Discourse Forum <ArrowRight className="h-4 w-4" />
                             </button>

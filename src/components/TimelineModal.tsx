@@ -8,9 +8,9 @@ export interface TimelineEvent {
     phase: string
     type: string
     date: string
-    symptoms : string[]
+    symptoms: string[]
     description: string[]
-    outcomes?: string
+    outcome?: string
 }
 
 interface TimelineModalProps {
@@ -22,7 +22,7 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
     const [events, setEvents] = useState<TimelineEvent[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const authenticatedFetch = useAuthenticatedFetch()
-    
+
 
     useEffect(() => {
         if (!isOpen) return
@@ -38,6 +38,7 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                         new Date(b.date).getTime() - new Date(a.date).getTime()
                     )
                     setEvents(sortedEvents)
+                    console.log(sortedEvents);
                 }
             } catch (error) {
                 console.error('Error fetching timeline:', error)
@@ -46,7 +47,7 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
             }
         }
 
-        if(localStorage.getItem('demoMode') === 'True') {
+        if (localStorage.getItem('demoMode') === 'True') {
             setIsLoading(false);
             setEvents(demoTimelineEvents)
         } else {
@@ -82,10 +83,16 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                     <div className="space-y-6">
                         {events.map((event, index) => (
                             <div key={index} className="relative">
-                                <div className="flex items-start gap-4">
-                                    <div className="flex-shrink-0 my-auto ">
-                                        <Calendar className="w-5 h-5 text-gray-400" />
-                                        
+                                <div className="flex items-start gap-4 ">
+                                    <div className="flex-shrink-0 my-auto w-20">
+                                        <div className="text-xs text-gray-400" >
+                                            {new Date(event.date).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric'
+                                                })}
+                                            </div>
+
                                     </div>
                                     <div className="flex-grow relative">
                                         <div className="bg-white rounded-lg border p-4">
@@ -96,21 +103,23 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                                                 {Array.isArray(event.description) ? event.description.join(', ') : event.description}
                                             </div>
                                             {event.symptoms && (
-                                                    event.symptoms.map((symptom,index)=>(
-                                                        <span  key={index} className="text-sm text-gray-600 mt-1">{symptom}{index!== event.symptoms.length-1 ? ", ":""}</span>
+                                                <div className=' flex flex-wrap'>
+                                                {event.symptoms.map((symptom, index) => (
+                                                    <div key={index} className="text-xs w-fit text-gray-600 border rounded-full px-2 py-1 mr-2 my-1">{symptom}</div>
 
-                                                    ))
+                                                ))}
+                                                </div>
                                             )}
-                                            <div>
-                                                {event.outcomes}
-                                            </div>
-                                            {event.date && <div className="text-xs text-gray-400 mt-2">
+                                            {/* {event.outcome && <div className='text-sm text-gray-700 my-2 border-t py-2  my-2'>
+                                                {event.outcome}
+                                            </div>} */}
+                                            {/* {event.date && <div className="text-xs text-gray-400 mt-2">
                                                 {new Date(event.date).toLocaleDateString('en-US', {
                                                     year: 'numeric',
                                                     month: 'long',
                                                     day: 'numeric'
                                                 })}
-                                            </div>}
+                                            </div>} */}
                                         </div>
                                         {index < events.length - 1 && (
                                             <div className="absolute left-[50%] -translate-x-1/2 top-[100%] w-0.5 bg-gray-200 h-full" />
