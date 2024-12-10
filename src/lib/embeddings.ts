@@ -159,7 +159,7 @@ export async function processStoryToTimeline(text: string) {
     const jsonStart = responseText.indexOf('{');
     const jsonEnd = responseText.lastIndexOf('}');
     const jsonStr = jsonStart >= 0 && jsonEnd >= 0 ? responseText.slice(jsonStart, jsonEnd + 1) : '{}';
-    console.log("Timeline Json == >" , jsonStr)
+    // console.log("Timeline Json == >" , jsonStr)
     return JSON.parse(jsonStr);
   } catch (error) {
     console.error('Error processing story:', error)
