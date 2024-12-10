@@ -30,7 +30,7 @@ const StoryNotes = () => {
   useEffect(() => {
     let mounted = true;
     setIsLoading(true);
-    if(localStorage.getItem('demoMode') === 'True') {
+    if (localStorage.getItem('demoMode') === 'True') {
       setDemoMode(true);
     }
 
@@ -41,7 +41,7 @@ const StoryNotes = () => {
         const data = await response.json();
         const stories = data.map((story: Story) => ({
           ...story,
-          createdAt: {$date : story.createdAt}
+          createdAt: { $date: story.createdAt }
         }));
         if (mounted) {
           setStories(stories);
@@ -55,7 +55,7 @@ const StoryNotes = () => {
       }
     };
     if (localStorage.getItem('demoMode') === 'True') {
-      if(mounted) {
+      if (mounted) {
         setIsLoading(false);
         setStories(demoSimilarStories)
       }
@@ -131,7 +131,7 @@ const StoryNotes = () => {
             <button
               onClick={() => router.push('/home')}
               className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105"
-              >
+            >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-2xl font-bold text-gray-900">My Story Notes</h1>
@@ -201,13 +201,13 @@ const StoryNotes = () => {
               <button
                 onClick={() => setIsEditing(false)}
                 className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105"
-                >
+              >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
                 className="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center"
-                >
+              >
                 Save Changes
               </button>
             </div>

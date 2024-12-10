@@ -38,7 +38,7 @@ interface StateResource {
 }
 
 export default function HomePage() {
-    useAuthRedirect()
+    useAuthRedirect();
     const [similarStories, setSimilarStories] = useState<Story[]>([])
     const [research, setResearch] = useState<Research[]>([])
     const [state, setState] = useState('')
@@ -51,9 +51,10 @@ export default function HomePage() {
     const [isLoadingSSO, setIsLoadingSSO] = useState(false);
     const [demoMode, setDemoMode] = useState<Boolean>(false);
 
+
     useEffect(() => {
         let isMounted = true
-        if(localStorage.getItem('demoMode') === 'True') {
+        if (localStorage.getItem('demoMode') === 'True') {
             setDemoMode(true);
         }
 
@@ -191,18 +192,21 @@ export default function HomePage() {
             // Clear session cookie - fixed to include domain and secure flags
             if (typeof window !== 'undefined') {
                 document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
-            localStorage.setItem('demoMode', 'False');
-            // Auth0 logout and redirect
-            await logout({
-                logoutParams: {
-                    returnTo: window.location.origin
+                localStorage.setItem('demoMode', 'False');
+                // Auth0 logout and redirect
+                if (!demoMode) {
+                    await logout({
+                        logoutParams: {
+                            returnTo: window.location.origin
+                        }
+                    })
+                    // Force navigation to home
+                    router.push('/')
+                } else {
+                    router.push('/onboarding')
                 }
-            })
-
-            // Force navigation to home
-            router.push('/')
             }
-            
+
         } catch (error) {
             console.error('Error during logout:', error);
         }
@@ -266,7 +270,7 @@ export default function HomePage() {
                         <h2 className="text-xl font-bold mb-4 text-gray-900">Find people with stories like you</h2>
                         <div className="space-y-4">
                             {
-                                similarStories.map(story => (
+                                similarStories.map((story, index) => (
                                     <div
                                         key={story.id}
                                         className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
@@ -304,8 +308,8 @@ export default function HomePage() {
                                     </div>
                                 ))}
                             <button
-                onClick={() => window.open(DISCOURSE_URL, '_blank')}
-                className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
+                                onClick={() => window.open(DISCOURSE_URL, '_blank')}
+                                className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
                             >
                                 Go to Discourse Forum <ArrowRight className="h-4 w-4" />
                             </button>
