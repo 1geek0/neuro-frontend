@@ -8,7 +8,7 @@ export interface TimelineEvent {
     phase: string
     type: string
     date: string
-    desc: string[]
+    description: string[]
     details?: string
 }
 
@@ -92,7 +92,7 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                                                 {event.phase}
                                             </span>
                                             <div className="font-medium text-gray-900">
-                                                {Array.isArray(event.desc) ? event.desc.join(', ') : event.desc}
+                                                {Array.isArray(event.description) ? event.description.join(', ') : event.description}
                                             </div>
                                             {event.details && (
                                                 <p className="text-sm text-gray-600 mt-1">{event.details}</p>

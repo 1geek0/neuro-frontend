@@ -3,6 +3,35 @@ import OpenAI from 'openai'
 
 const openai_client = new OpenAI()
 const anthropic = new Anthropic()
+const patientTimelineFormat = {
+  patient_details: {
+    id: "Unique_ID", // Unique identifier for the patient (string)
+    age: 0, // Patient's age (number)
+    sex: "M", // Patient's gender, e.g., "M" or "F" (string)
+  },
+  events: [
+    /*
+      This is an array of event objects. Each object represents an event in the patient's timeline.
+      Each event must include the following key details:
+      - phase: The phase of care (string, e.g., "pre-diagnosis", "diagnosis", etc.)
+      - type: The type of event (string, e.g., "symptom", "medication", "test", etc.)
+      - date: The date of the event in the format YYYY-MM-DD (string)
+      - description: A brief description of the event (string)
+      Additional fields may be added depending on the event type.
+    */
+    {
+      phase: "phase_name", // Example: "pre-diagnosis"
+      type: "event_type", // Example: "symptom"
+      date: "YYYY-MM-DD", // Example: "2024-01-15"
+      description: "Detailed description of the event", // Example: "Patient experienced persistent headaches"
+      // Optional additional fields depending on the event type:
+      drug_name: "Optional drug name", // Example for medication events
+      test_type: "Optional test type", // Example for test events
+      outcome: "Optional outcome", // Example for follow-up events
+    }
+  ]
+};
+
 
 const sampleTimeline = {
   "patient_details": {
@@ -105,7 +134,8 @@ export async function processStoryToTimeline(text: string) {
       max_tokens: 1000,
       temperature: 0.2,
       system: `I am a helpful assistant that converts patient stories into structured timeline JSON format with this reference format:
-      \n\n${sampleTimeline}`,
+      \n\n${JSON.stringify(patientTimelineFormat,null,2)}
+      `,
       messages: [
         {
           role: "user",
@@ -128,6 +158,7 @@ export async function processStoryToTimeline(text: string) {
     const jsonStart = responseText.indexOf('{');
     const jsonEnd = responseText.lastIndexOf('}');
     const jsonStr = jsonStart >= 0 && jsonEnd >= 0 ? responseText.slice(jsonStart, jsonEnd + 1) : '{}';
+    console.log("Timeline Json == >" , jsonStr)
     return JSON.parse(jsonStr);
   } catch (error) {
     console.error('Error processing story:', error)
