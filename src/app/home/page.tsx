@@ -44,7 +44,7 @@ export default function HomePage() {
     const [state, setState] = useState('')
     const router = useRouter()
     const [selectedStory, setSelectedStory] = useState<Story | null>(null)
-    const { logout, user } = useAuth0()
+    const { logout, user, getAccessTokenSilently } = useAuth0()
     const authenticatedFetch = useAuthenticatedFetch()
     const [stateResources, setStateResources] = useState<StateResource[]>([])
     const [isLoadingResources, setIsLoadingResources] = useState(false)
@@ -187,6 +187,28 @@ export default function HomePage() {
         }
     };
 
+    const handleDiscourseLogin = async () => {
+        try {
+            const token = await getAccessTokenSilently();
+            const response = await fetch('/api/discourse/sso', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to initiate SSO');
+            }
+            
+            const data = await response.json();
+            window.location.href = data.redirectUrl;
+        } catch (error) {
+            console.error('Error initiating Discourse SSO:', error);
+        }
+    };
+
     const handleLogout = async () => {
         try {
             // Clear session cookie - fixed to include domain and secure flags
@@ -308,7 +330,7 @@ export default function HomePage() {
                                     </div>
                                 ))}
                             <button
-                                onClick={() => window.open(DISCOURSE_URL, '_blank')}
+                                onClick={handleDiscourseLogin}
                                 className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
                             >
                                 Go to Discourse Forum <ArrowRight className="h-4 w-4" />
