@@ -50,6 +50,7 @@ export default function HomePage() {
     const [isLoadingResources, setIsLoadingResources] = useState(false)
     const [isLoadingSSO, setIsLoadingSSO] = useState(false);
     const [demoMode, setDemoMode] = useState<Boolean>(false);
+    const { loginWithPopup } = useAuth0()
 
 
     useEffect(() => {
@@ -228,6 +229,22 @@ export default function HomePage() {
         }
     }
 
+    const handleLogin = async () => {
+        try {
+            localStorage.setItem('demoMode', 'False');
+            // Trigger Auth0 login
+            await loginWithPopup({
+                authorizationParams: {
+                    screen_hint: 'signin',
+                }
+            });
+            router.push('/home');
+        } catch (error) {
+            console.error('Error during login:', error);
+            alert('Failed to log in. Please try again.');
+        }
+        window.location.reload();
+    };
     // Group resources by facility type for better organization
     const groupedResources = stateResources.reduce((acc, resource) => {
         const type = resource.facility_type
@@ -245,7 +262,16 @@ export default function HomePage() {
                     <Brain className="h-7 w-7 text-purple-600" />
                     <span className="ml-2 text-xl font-bold text-purple-600 tracking-tight">neuro86</span>
                 </div>
+
                 <div className="flex items-center gap-4">
+                    {demoMode && (
+                        <button
+                            onClick={handleLogin}
+                            className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105"
+                        >
+                            Sign In
+                        </button>
+                    )}
                     <button
                         onClick={handleLogout}
                         className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105"
@@ -272,7 +298,7 @@ export default function HomePage() {
                             {
                                 similarStories.map((story, index) => (
                                     <div
-                                        key={story.id}
+                                        key={index}
                                         className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                                         onClick={() => setSelectedStory(story)}
                                     >
@@ -328,7 +354,7 @@ export default function HomePage() {
                         <section className="bg-white rounded-lg shadow p-6">
                             <h2 className="text-xl font-bold mb-4 text-gray-900">Latest Research on Meningioma</h2>
                             <div className="space-y-4">
-                                {research.map(item => (
+                                {research.map((item,) => (
                                     <a
                                         key={item.id}
                                         href={item.link}
