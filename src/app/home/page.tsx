@@ -40,7 +40,9 @@ interface StateResource {
 export default function HomePage() {
     useAuthRedirect();
     const [similarStories, setSimilarStories] = useState<Story[]>([])
+    const [isLoadingSimilarStories, setIsLoadingSimilarStories] = useState<Boolean>(false);
     const [research, setResearch] = useState<Research[]>([])
+    const [isLoadingResearch,setIsLoadingResearch] = useState<Boolean>(false);
     const [state, setState] = useState('')
     const router = useRouter()
     const [selectedStory, setSelectedStory] = useState<Story | null>(null)
@@ -62,6 +64,8 @@ export default function HomePage() {
         const fetchData = async () => {
             try {
                 setIsLoadingResources(true);
+                setIsLoadingSimilarStories(true);
+                setIsLoadingResearch(true);
                 const [storiesRes, researchRes] = await Promise.all([
                     authenticatedFetch('/api/similar-stories'),
                     authenticatedFetch('/api/research')
@@ -120,11 +124,33 @@ export default function HomePage() {
                 // setFetchError(true);
             } finally {
                 setIsLoadingResources(false);
+                setIsLoadingSimilarStories(false);
+                setIsLoadingResearch(false);
             }
         };
 
         if (localStorage.getItem('demoMode') === 'True') {
             setSimilarStories(demoSimilarStories);
+            const fetchPublicResearch = async () => {
+                try {
+                    setIsLoadingResearch(true);
+                    const research = await fetch('/api/public-research');
+                    if (!research.ok) {
+                        throw new Error("Failed to fetch research");
+                    }
+                    const data = await research.json();
+                    // Showing just two researches for now
+                    const medicalResearch = data.slice(0,2);
+                    setResearch(medicalResearch);
+                }
+                catch (error) {
+                    console.error("Error while fetching public research on Demo Mode, ", error);
+                } finally {
+                    setIsLoadingResearch(false);
+                }
+            }
+
+            fetchPublicResearch();
         } else {
             fetchData();
         }
@@ -295,7 +321,13 @@ export default function HomePage() {
                     <section className="bg-white rounded-lg shadow p-6">
                         <h2 className="text-xl font-bold mb-4 text-gray-900">Find people with stories like you</h2>
                         <div className="space-y-4">
-                            {
+                            {isLoadingSimilarStories ? (
+                                <div className="text-center py-8">
+                                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
+                                    <p className="text-sm text-gray-500 mt-2">Loading similar stories...</p>
+                                </div>
+                            ) :
+
                                 similarStories.map((story, index) => (
                                     <div
                                         key={index}
@@ -332,7 +364,8 @@ export default function HomePage() {
                                             </button>
                                         )}
                                     </div>
-                                ))}
+                                ))
+                            }
                             <button
                                 onClick={() => window.open(DISCOURSE_URL, '_blank')}
                                 className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
@@ -354,7 +387,14 @@ export default function HomePage() {
                         <section className="bg-white rounded-lg shadow p-6">
                             <h2 className="text-xl font-bold mb-4 text-gray-900">Latest Research on Meningioma</h2>
                             <div className="space-y-4">
-                                {research.map((item,) => (
+                                {isLoadingResearch ? (
+                                <div className="text-center py-8">
+                                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
+                                    <p className="text-sm text-gray-500 mt-2">Loading Latest Research...</p>
+                                </div>
+                            ) :
+                                
+                                research.map((item,) => (
                                     <a
                                         key={item.id}
                                         href={item.link}
