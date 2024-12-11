@@ -46,11 +46,11 @@ export async function GET(req: NextRequest) {
         }
 
         // Redirect to the frontend with SSO parameters
-        const redirectUrl = new URL('/home', req.url);
-        redirectUrl.searchParams.set('sso', sso);
-        redirectUrl.searchParams.set('sig', sig);
+        // Redirect to Discourse with SSO parameters
+        const discourseRedirectUrl = `${DISCOURSE_URL}/session/sso_login?sso=${encodeURIComponent(sso)}&sig=${sig}`;
 
-        return NextResponse.redirect(redirectUrl);
+
+        return NextResponse.redirect(discourseRedirectUrl);
     } catch (error) {
         console.error('Error in SSO handler:', error);
         return NextResponse.json({ 
