@@ -14,6 +14,6 @@ export const auth0Config = {
             ? process.env.NEXT_PUBLIC_AUTH0_REDIRECT_URI
             : `${window.location.origin}/home`,
         audience: process.env.NEXT_PUBLIC_AUTH0_AUDIENCE,
-        scope: 'openid profile email',
+        scope: 'openid profile email offline_access',
     },
 } 

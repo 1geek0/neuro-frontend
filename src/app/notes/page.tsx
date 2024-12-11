@@ -23,7 +23,6 @@ const StoryNotes = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState('');
   const [showTimeline, setShowTimeline] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
   const [demoMode, setDemoMode] = useState<Boolean>(false);
@@ -31,7 +30,7 @@ const StoryNotes = () => {
   useEffect(() => {
     let mounted = true;
     setIsLoading(true);
-    if(localStorage.getItem('demoMode') === 'True') {
+    if (localStorage.getItem('demoMode') === 'True') {
       setDemoMode(true);
     }
 
@@ -42,7 +41,7 @@ const StoryNotes = () => {
         const data = await response.json();
         const stories = data.map((story: Story) => ({
           ...story,
-          createdAt: {$date : story.createdAt}
+          createdAt: { $date: story.createdAt }
         }));
         if (mounted) {
           setStories(stories);
@@ -56,7 +55,7 @@ const StoryNotes = () => {
       }
     };
     if (localStorage.getItem('demoMode') === 'True') {
-      if(mounted) {
+      if (mounted) {
         setIsLoading(false);
         setStories(demoSimilarStories)
       }
@@ -110,24 +109,6 @@ const StoryNotes = () => {
     }
   };
 
-  const handleDeleteAllStories = async () => {
-    try {
-      const response = await authenticatedFetch('/api/stories/delete-all', {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete stories');
-      }
-
-      setStories([]);
-      setShowDeleteConfirm(false);
-    } catch (error) {
-      console.error('Error deleting stories:', error);
-      alert('Failed to delete stories. Please try again.');
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -137,7 +118,7 @@ const StoryNotes = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 py-8">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="bg-blue-100 text-blue-800 p-4 rounded-lg mb-6">
           <p className="text-sm">
@@ -149,7 +130,7 @@ const StoryNotes = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/home')}
-              className="p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100"
+              className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -158,19 +139,13 @@ const StoryNotes = () => {
           <div className="flex gap-4">
             <button
               onClick={() => setShowTimeline(true)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center"
             >
               View Timeline
             </button>
             <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-            >
-              Delete All Stories
-            </button>
-            <button
               onClick={handleAddStory}
-              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105"
             >
               <PlusCircle className="w-5 h-5" />
               Add New Story
@@ -182,7 +157,7 @@ const StoryNotes = () => {
           {stories.map((story, index) => (
             <div
               key={story.id}
-              className="bg-white rounded-lg shadow-sm border p-6 space-y-4"
+              className="bg-white rounded-lg shadow p-6 space-y-4"
             >
               <div className="flex justify-between items-start">
                 <div>
@@ -225,13 +200,13 @@ const StoryNotes = () => {
             <div className="flex justify-end gap-4 mt-4">
               <button
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                className="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center"
               >
                 Save Changes
               </button>
@@ -245,31 +220,6 @@ const StoryNotes = () => {
         onClose={() => setShowTimeline(false)}
       />
 
-      {/* Delete All Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-xl font-semibold mb-4 text-red-600">Delete All Stories?</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete all your stories? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteAllStories}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-              >
-                Delete All
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

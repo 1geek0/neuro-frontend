@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Modal } from '@/components/Modal'
 import { useAuth0 } from '@auth0/auth0-react'
-import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X } from 'lucide-react'
+import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X, Brain, ArrowRight } from 'lucide-react'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
 import { demoSimilarStories } from '@/Demo/demoSimilarStories'
@@ -38,7 +38,7 @@ interface StateResource {
 }
 
 export default function HomePage() {
-    useAuthRedirect()
+    useAuthRedirect();
     const [similarStories, setSimilarStories] = useState<Story[]>([])
     const [research, setResearch] = useState<Research[]>([])
     const [state, setState] = useState('')
@@ -51,25 +51,49 @@ export default function HomePage() {
     const [isLoadingSSO, setIsLoadingSSO] = useState(false);
     const [demoMode, setDemoMode] = useState<Boolean>(false);
 
+
     useEffect(() => {
-        let isMounted = true;
-        if(localStorage.getItem('demoMode') === 'True') {
+        let isMounted = true
+        if (localStorage.getItem('demoMode') === 'True') {
             setDemoMode(true);
         }
 
         const fetchData = async () => {
             try {
+                setIsLoadingResources(true);
                 const [storiesRes, researchRes] = await Promise.all([
                     authenticatedFetch('/api/similar-stories'),
                     authenticatedFetch('/api/research')
                 ]);
 
-                if (!storiesRes.ok || !researchRes.ok) {
-                    throw new Error('Failed to fetch data');
+                // Log raw responses for debugging
+                console.log('Stories Response:', storiesRes);
+                console.log('Research Response:', researchRes);
+
+                // Check if responses are ok before parsing
+                if (!storiesRes.ok) {
+                    const errorText = await storiesRes.text();
+                    console.error('Stories Fetch Error:', errorText);
+                    throw new Error(`Stories fetch failed: ${errorText}`);
                 }
 
-                const stories = await storiesRes.json();
-                const researchData = await researchRes.json();
+                if (!researchRes.ok) {
+                    const errorText = await researchRes.text();
+                    console.error('Research Fetch Error:', errorText);
+                    throw new Error(`Research fetch failed: ${errorText}`);
+                }
+
+                // Safely parse JSON
+                let stories, researchData;
+                try {
+                    stories = await storiesRes.json();
+                    researchData = await researchRes.json();
+                } catch (jsonError) {
+                    console.error('JSON Parsing Error:', jsonError);
+                    console.log('Stories Raw:', await storiesRes.text());
+                    console.log('Research Raw:', await researchRes.text());
+                    throw new Error('Failed to parse JSON response');
+                }
 
                 if (isMounted) {
                     const additionalStories = researchData
@@ -90,7 +114,11 @@ export default function HomePage() {
                     setResearch(medicalResearch);
                 }
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Comprehensive Fetch Error:', error);
+                // Optionally set an error state to show user-friendly message
+                // setFetchError(true);
+            } finally {
+                setIsLoadingResources(false);
             }
         };
 
@@ -162,17 +190,23 @@ export default function HomePage() {
     const handleLogout = async () => {
         try {
             // Clear session cookie - fixed to include domain and secure flags
-            document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
-
-            // Auth0 logout and redirect
-            await logout({
-                logoutParams: {
-                    returnTo: window.location.origin
+            if (typeof window !== 'undefined') {
+                document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
+                localStorage.setItem('demoMode', 'False');
+                // Auth0 logout and redirect
+                if (!demoMode) {
+                    await logout({
+                        logoutParams: {
+                            returnTo: window.location.origin
+                        }
+                    })
+                    // Force navigation to home
+                    router.push('/')
+                } else {
+                    router.push('/onboarding')
                 }
-            })
+            }
 
-            // Force navigation to home
-            router.push('/')
         } catch (error) {
             console.error('Error during logout:', error);
         }
@@ -205,7 +239,22 @@ export default function HomePage() {
     }, {} as Record<string, StateResource[]>)
 
     return (
-        <main className="min-h-screen bg-gradient-to-b from-white to-gray-50 py-8">
+        <main className="min-h-screen bg-gradient-to-b from-white to-purple-50">
+            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm px-4 lg:px-6 h-16 flex items-center justify-between">
+                <div className="flex items-center transition-all duration-300 hover:scale-105">
+                    <Brain className="h-7 w-7 text-purple-600" />
+                    <span className="ml-2 text-xl font-bold text-purple-600 tracking-tight">neuro86</span>
+                </div>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105"
+                    >
+                        <LogOut className="w-4 h-4" />
+                        {demoMode ? 'Quit Demo Mode' : 'Logout'}
+                    </button>
+                </div>
+            </header>
             {isLoadingSSO ? (
                 <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
                     <div className="text-center">
@@ -215,57 +264,61 @@ export default function HomePage() {
                 </div>
             ) : null}
             <div className="container mx-auto px-4">
-                <div className="flex justify-end mb-6">
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-lg border border-gray-300 shadow-sm"
-                    >
-                        <LogOut className="w-4 h-4" />
-                        {demoMode ? 'Quit Demo Mode' : 'Logout'}
-                    </button>
-                </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Similar Stories Section */}
                     <section className="bg-white rounded-lg shadow p-6">
                         <h2 className="text-xl font-bold mb-4 text-gray-900">Find people with stories like you</h2>
                         <div className="space-y-4">
                             {
-                                similarStories.map(story => (
+                                similarStories.map((story, index) => (
                                     <div
                                         key={story.id}
                                         className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                                         onClick={() => setSelectedStory(story)}
                                     >
-
-
                                         <h3 className="font-semibold mb-2 text-gray-900">{story.title}</h3>
                                         <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
                                         {story.link && (
-                                            <a
-                                                href={story.link}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block"
-                                                onClick={(e) => e.stopPropagation()}
+                                            <div className="flex justify-between items-end mt-2">
+                                                <button
+                                                    onClick={() => setSelectedStory(story)}
+                                                    className="text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105 hover:tracking-wider flex items-center gap-2"
+                                                >
+                                                    Read More <ChevronRight className="h-4 w-4" />
+                                                </button>
+                                                <a
+                                                    href={story.link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105 hover:tracking-wider flex items-center gap-2"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    View original post <ChevronRight className="h-4 w-4" />
+                                                </a>
+                                            </div>
+                                        )}
+                                        {!story.link && (
+                                            <button
+                                                onClick={() => setSelectedStory(story)}
+                                                className="text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105 hover:tracking-wider flex items-center gap-2 mt-2"
                                             >
-                                                View original post →
-                                            </a>
+                                                Read More <ChevronRight className="h-4 w-4" />
+                                            </button>
                                         )}
                                     </div>
                                 ))}
                             <button
-                                onClick={handleDiscourseSSO}
-                                className="w-full bg-emerald-100 text-emerald-900 rounded-lg p-3 hover:bg-emerald-200 transition"
+                                onClick={() => window.open(DISCOURSE_URL, '_blank')}
+                                className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
                             >
-                                Go to Discourse Forum
+                                Go to Discourse Forum <ArrowRight className="h-4 w-4" />
                             </button>
 
                             <button
                                 onClick={() => router.push('/notes')}
-                                className="w-full bg-emerald-100 text-emerald-900 rounded-lg p-3 hover:bg-emerald-200 transition"
+                                className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
                             >
-                                Add more to your story to find more similar people
+                                Add more to your story <ArrowRight className="h-4 w-4" />
                             </button>
                         </div>
                     </section>
