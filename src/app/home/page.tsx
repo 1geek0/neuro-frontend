@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useContext } from 'react'
 import { useRouter } from 'next/navigation'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
+// import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Modal } from '@/components/Modal'
 import { useAuth0 } from '@auth0/auth0-react'
 import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X, Brain, ArrowRight } from 'lucide-react'
@@ -243,7 +243,7 @@ export default function HomePage() {
     const fetchStateResources = async (selectedState: string) => {
         setIsLoadingResources(true)
         try {
-            const response = await authenticatedFetch(`/api/state-resources/${selectedState}`)
+            const response = await fetch(`/api/state-resources/${selectedState}`)
             if (!response.ok) throw new Error('Failed to fetch state resources')
             const data = await response.json()
             setStateResources(data)

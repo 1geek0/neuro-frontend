@@ -7,7 +7,7 @@ type StateParams = {
 
 export async function GET(
     request: NextRequest,
-    { params }: any
+     {params} : {params : StateParams}
 ) {
     try {
         const { state } = params
