@@ -39,10 +39,11 @@ export async function getOrCreateUser(sessionId?: string, auth0Id?: string, user
   }
 }
 
-export async function createStory(userId: string, rawText: string, timelineJson: any, embedding: number[]) {
+export async function createStory(userId: string, title: string, rawText: string, timelineJson: any, embedding: number[]) {
   return prisma.story.create({
     data: {
       userId,
+      title,
       rawText,
       timelineJson,
       embedding
