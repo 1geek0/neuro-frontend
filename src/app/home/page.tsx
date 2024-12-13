@@ -199,11 +199,22 @@ export default function HomePage() {
             });
             
             if (!response.ok) {
-                throw new Error('Failed to initiate SSO');
+                const errorText = await response.text();
+                throw new Error(`Failed to initiate SSO: ${errorText}`);
             }
             
-            const data = await response.json();
-            window.location.href = data.redirectUrl;
+            // Handle redirect response
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                // Fallback to JSON parsing if not redirected
+                const data = await response.json();
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                } else {
+                    throw new Error('No redirect URL provided');
+                }
+            }
         } catch (error) {
             console.error('Error initiating Discourse SSO:', error);
         }
