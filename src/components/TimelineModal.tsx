@@ -77,7 +77,7 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                     </div>
                 ) : events.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
-                        No timeline events found
+                        Add more to your story so we can map your timeline together
                     </div>
                 ) : (
                     <div className="space-y-6">
