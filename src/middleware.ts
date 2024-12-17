@@ -62,7 +62,6 @@ export const config = {
         '/api/research',
         '/api/check-story',
         '/api/timeline',
-        '/api/state-resources/:state*',
         '/api/stories/delete-all'
     ]
 }

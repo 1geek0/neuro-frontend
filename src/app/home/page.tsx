@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useContext } from 'react'
 import { useRouter } from 'next/navigation'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
+// import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Modal } from '@/components/Modal'
 import { useAuth0 } from '@auth0/auth0-react'
 import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X, Brain, ArrowRight } from 'lucide-react'
@@ -40,7 +40,9 @@ interface StateResource {
 export default function HomePage() {
     useAuthRedirect();
     const [similarStories, setSimilarStories] = useState<Story[]>([])
+    const [isLoadingSimilarStories, setIsLoadingSimilarStories] = useState<Boolean>(false);
     const [research, setResearch] = useState<Research[]>([])
+    const [isLoadingResearch,setIsLoadingResearch] = useState<Boolean>(false);
     const [state, setState] = useState('')
     const router = useRouter()
     const [selectedStory, setSelectedStory] = useState<Story | null>(null)
@@ -50,6 +52,7 @@ export default function HomePage() {
     const [isLoadingResources, setIsLoadingResources] = useState(false)
     const [isLoadingSSO, setIsLoadingSSO] = useState(false);
     const [demoMode, setDemoMode] = useState<Boolean>(false);
+    const { loginWithPopup } = useAuth0()
 
 
     useEffect(() => {
@@ -61,6 +64,8 @@ export default function HomePage() {
         const fetchData = async () => {
             try {
                 setIsLoadingResources(true);
+                setIsLoadingSimilarStories(true);
+                setIsLoadingResearch(true);
                 const [storiesRes, researchRes] = await Promise.all([
                     authenticatedFetch('/api/similar-stories'),
                     authenticatedFetch('/api/research')
@@ -119,11 +124,33 @@ export default function HomePage() {
                 // setFetchError(true);
             } finally {
                 setIsLoadingResources(false);
+                setIsLoadingSimilarStories(false);
+                setIsLoadingResearch(false);
             }
         };
 
         if (localStorage.getItem('demoMode') === 'True') {
             setSimilarStories(demoSimilarStories);
+            const fetchPublicResearch = async () => {
+                try {
+                    setIsLoadingResearch(true);
+                    const research = await fetch('/api/public-research');
+                    if (!research.ok) {
+                        throw new Error("Failed to fetch research");
+                    }
+                    const data = await research.json();
+                    // Showing just two researches for now
+                    const medicalResearch = data.slice(0,2);
+                    setResearch(medicalResearch);
+                }
+                catch (error) {
+                    console.error("Error while fetching public research on Demo Mode, ", error);
+                } finally {
+                    setIsLoadingResearch(false);
+                }
+            }
+
+            fetchPublicResearch();
         } else {
             fetchData();
         }
@@ -217,7 +244,7 @@ export default function HomePage() {
     const fetchStateResources = async (selectedState: string) => {
         setIsLoadingResources(true)
         try {
-            const response = await authenticatedFetch(`/api/state-resources/${selectedState}`)
+            const response = await fetch(`/api/state-resources/${selectedState}`)
             if (!response.ok) throw new Error('Failed to fetch state resources')
             const data = await response.json()
             setStateResources(data)
@@ -229,6 +256,22 @@ export default function HomePage() {
         }
     }
 
+    const handleLogin = async () => {
+        try {
+            localStorage.setItem('demoMode', 'False');
+            // Trigger Auth0 login
+            await loginWithPopup({
+                authorizationParams: {
+                    screen_hint: 'signin',
+                }
+            });
+            router.push('/home');
+        } catch (error) {
+            console.error('Error during login:', error);
+            alert('Failed to log in. Please try again.');
+        }
+        window.location.reload();
+    };
     // Group resources by facility type for better organization
     const groupedResources = stateResources.reduce((acc, resource) => {
         const type = resource.facility_type
@@ -246,7 +289,16 @@ export default function HomePage() {
                     <Brain className="h-7 w-7 text-purple-600" />
                     <span className="ml-2 text-xl font-bold text-purple-600 tracking-tight">neuro86</span>
                 </div>
+
                 <div className="flex items-center gap-4">
+                    {demoMode && (
+                        <button
+                            onClick={handleLogin}
+                            className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105"
+                        >
+                            Sign In
+                        </button>
+                    )}
                     <button
                         onClick={handleLogout}
                         className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105"
@@ -270,10 +322,16 @@ export default function HomePage() {
                     <section className="bg-white rounded-lg shadow p-6">
                         <h2 className="text-xl font-bold mb-4 text-gray-900">Find people with stories like you</h2>
                         <div className="space-y-4">
-                            {
+                            {isLoadingSimilarStories ? (
+                                <div className="text-center py-8">
+                                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
+                                    <p className="text-sm text-gray-500 mt-2">Loading similar stories...</p>
+                                </div>
+                            ) :
+
                                 similarStories.map((story, index) => (
                                     <div
-                                        key={story.id}
+                                        key={index}
                                         className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                                         onClick={() => setSelectedStory(story)}
                                     >
@@ -307,7 +365,8 @@ export default function HomePage() {
                                             </button>
                                         )}
                                     </div>
-                                ))}
+                                ))
+                            }
                             <button
                                 onClick={() => window.open(DISCOURSE_URL, '_blank')}
                                 className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
@@ -329,7 +388,14 @@ export default function HomePage() {
                         <section className="bg-white rounded-lg shadow p-6">
                             <h2 className="text-xl font-bold mb-4 text-gray-900">Latest Research on Meningioma</h2>
                             <div className="space-y-4">
-                                {research.map(item => (
+                                {isLoadingResearch ? (
+                                <div className="text-center py-8">
+                                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
+                                    <p className="text-sm text-gray-500 mt-2">Loading Latest Research...</p>
+                                </div>
+                            ) :
+                                
+                                research.map((item,) => (
                                     <a
                                         key={item.id}
                                         href={item.link}

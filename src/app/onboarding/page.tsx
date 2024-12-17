@@ -48,7 +48,7 @@ export default function OnboardingPage() {
 
 
   useEffect(() => {
-    if (isAuthenticated || demoMode) {
+    if (isAuthenticated ) {
       const checkUserStory = async () => {
         try {
           const response = await authenticatedFetch('/api/check-story')
