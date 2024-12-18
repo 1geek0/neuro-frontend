@@ -221,6 +221,7 @@ export default function HomePage() {
                 document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; secure; samesite=strict';
                 localStorage.setItem('demoMode', 'False');
                 // Auth0 logout and redirect
+
                 if (!demoMode) {
                     await logout({
                         logoutParams: {
