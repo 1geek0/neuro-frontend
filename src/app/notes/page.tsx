@@ -149,7 +149,7 @@ const StoryNotes = () => {
                 className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105"
               >
                 <PlusCircle className="w-5 h-5" />
-                Add New Story
+                Update Story
               </button>
             }
           </div>
