@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
 
         // Redirect directly to Discourse
         const discourseRedirectUrl = `${DISCOURSE_URL}/session/sso_login?sso=${encodeURIComponent(sso)}&sig=${sig}`;
-        return NextResponse.redirect(discourseRedirectUrl);
+        return NextResponse.json({ redirectUrl: discourseRedirectUrl });
     } catch (error) {
         console.error('Error in SSO handler:', error);
         return NextResponse.json({ 
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
 
         // Instead of returning JSON, redirect directly to Discourse
         const discourseUrl = `${DISCOURSE_URL}/session/sso_login?sso=${encodeURIComponent(sso)}&sig=${sig}`;
-        return NextResponse.redirect(discourseUrl);
+        return NextResponse.json({ redirectUrl: discourseUrl });
 
     } catch (error) {
         console.error('Error in SSO handler:', error);

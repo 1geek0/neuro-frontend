@@ -189,8 +189,16 @@ export default function HomePage() {
 
     const handleDiscourseLogin = async () => {
         try {
+            console.log('Initiating SSO process...');
             const token = await getAccessTokenSilently();
-            const response = await fetch('/api/discourse/sso', {
+            console.log('Got access token, making request to SSO endpoint...');
+            
+            // Get the base URL dynamically
+            const baseUrl = window.location.origin;
+            const ssoUrl = `${baseUrl}/api/discourse/sso`;
+            console.log('SSO endpoint URL:', ssoUrl);
+
+            const response = await fetch(ssoUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -198,25 +206,33 @@ export default function HomePage() {
                 },
             });
             
+            console.log('Response status:', response.status);
+            
             if (!response.ok) {
                 const errorText = await response.text();
+                console.error('Server error response:', errorText);
                 throw new Error(`Failed to initiate SSO: ${errorText}`);
             }
             
-            // Handle redirect response
-            if (response.redirected) {
-                window.location.href = response.url;
-            } else {
-                // Fallback to JSON parsing if not redirected
-                const data = await response.json();
-                if (data.redirectUrl) {
-                    window.location.href = data.redirectUrl;
-                } else {
-                    throw new Error('No redirect URL provided');
-                }
+            const data = await response.json();
+            console.log('Received response:', data);
+            
+            if (!data.redirectUrl) {
+                throw new Error('No redirect URL provided in response');
             }
+
+            // Perform the redirect
+            console.log('Redirecting to:', data.redirectUrl);
+            window.location.href = data.redirectUrl;
         } catch (error) {
             console.error('Error initiating Discourse SSO:', error);
+            if (error instanceof Error) {
+                console.error('Error details:', {
+                    message: error.message,
+                    name: error.name,
+                    stack: error.stack
+                });
+            }
         }
     };
 
