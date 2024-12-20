@@ -31,10 +31,11 @@ export async function POST(req: NextRequest) {
     // Process story and create timeline
     const timelineJson = await processStoryToTimeline(story)
     const embedding = await generateEmbedding(story)
+    const title = await generateTitle(story)
 
     // Create story in database
-    const response = await createStory(user.id, story, timelineJson, embedding)
-    
+    const response = await createStory(user.id, title, story, timelineJson, embedding)
+
     if (!response) {
       throw new Error('Failed to create story')
     }
