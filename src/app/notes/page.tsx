@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { PencilIcon, PlusCircle, Loader2, ArrowLeft, Lock } from 'lucide-react';
+import { PencilIcon, PlusCircle, Loader2, ArrowLeft, Lock, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
@@ -108,7 +108,27 @@ const StoryNotes = () => {
       alert('Failed to update story. Please try again.');
     }
   };
+  const handleDeleteStory = async (id: string) => {
+    try {
+      const response = await authenticatedFetch(`/api/story/${id}`, {
+        method: 'DELETE',
+      });
 
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete story');
+      }
+
+      const storiesResponse = await authenticatedFetch('/api/stories');
+      if (storiesResponse.ok) {
+        const data = await storiesResponse.json();
+        setStories(data);
+      }
+    } catch (error) {
+      console.error('Error deleting story:', error);
+      alert('Failed to delete story. Please try again.');
+    }
+  };
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -171,12 +191,22 @@ const StoryNotes = () => {
                     {story.title ? story.title : `Story ${index + 1}`}
                   </h2>
                 </div>
-                { !demoMode && <button
-                  onClick={() => handleEditStory(story)}
-                  className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
-                >
-                  <PencilIcon className="w-5 h-5" />
-                </button>}
+                { !demoMode && <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => handleEditStory(story)}
+                    className="p-1 text-gray-600 hover:text-blue-600 transition-colors"
+                    aria-label="Edit story"
+                  >
+                    <PencilIcon className="w-7 h-7" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteStory(story.id)}
+                    className="p-1 text-gray-600 hover:text-red-600 transition-colors"
+                    aria-label="Delete story"
+                  >
+                    <Trash2 className="w-7 h-7" />
+                  </button>
+                </div>}
               </div>
               <p className="text-gray-700 whitespace-pre-wrap">{story.rawText}</p>
             </div>
