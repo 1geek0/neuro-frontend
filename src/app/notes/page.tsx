@@ -204,14 +204,14 @@ const StoryNotes = () => {
                 { !demoMode && <div className="flex flex-col gap-3">
                   <button
                     onClick={() => handleEditStory(story)}
-                    className="p-1 text-gray-600 hover:text-blue-600 transition-colors"
+                    className="p-1 text-gray-600 hover:text-gray-700 rounded-full hover:bg-gray-100"
                     aria-label="Edit story"
                   >
                     <PencilIcon className="w-7 h-7" />
                   </button>
                   <button
                     onClick={() => handleDeleteStory(story.id)}
-                    className="p-1 text-gray-600 hover:text-red-600 transition-colors"
+                    className="p-1 text-gray-600 hover:text-red-700 rounded-full hover:bg-gray-100"
                     aria-label="Delete story"
                   >
                     <Trash2 className="w-7 h-7" />
