@@ -7,6 +7,7 @@ import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { TimelineModal } from '@/components/TimelineModal';
 import { demoSimilarStories } from '@/Demo/demoSimilarStories';
+import { TimelineChatModal } from '@/components/TimelineChartModal';
 
 interface Story {
   id: string;
@@ -23,6 +24,7 @@ const StoryNotes = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState('');
   const [showTimeline, setShowTimeline] = useState(false);
+  const [showWhoElseTimeline, setShowWhoElseTimeline] = useState(false);
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
   const [demoMode, setDemoMode] = useState<Boolean>(false);
@@ -137,6 +139,14 @@ const StoryNotes = () => {
             <h1 className="text-2xl font-bold text-gray-900">My Story Notes</h1>
           </div>
           <div className="flex gap-4">
+            {!demoMode &&
+              <button
+                onClick={() => setShowWhoElseTimeline(true)}
+                className="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center"
+              >
+                Who Else
+              </button>
+            }
             <button
               onClick={() => setShowTimeline(true)}
               className="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center"
@@ -171,7 +181,7 @@ const StoryNotes = () => {
                     {story.title ? story.title : `Story ${index + 1}`}
                   </h2>
                 </div>
-                { !demoMode && <button
+                {!demoMode && <button
                   onClick={() => handleEditStory(story)}
                   className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
                 >
@@ -221,7 +231,10 @@ const StoryNotes = () => {
         isOpen={showTimeline}
         onClose={() => setShowTimeline(false)}
       />
-
+      <TimelineChatModal
+        isOpen={showWhoElseTimeline}
+        onClose={() => setShowWhoElseTimeline(false)}
+      />
     </div>
   );
 };

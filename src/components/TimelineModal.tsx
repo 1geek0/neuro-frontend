@@ -3,6 +3,7 @@ import { Loader2, Calendar } from 'lucide-react'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
 import { useState, useEffect } from 'react'
 import { demoTimelineEvents } from '@/Demo/demoTimelineEvents';
+import { TimelineChart } from './TimelineChart';
 
 export interface TimelineEvent {
     phase: string
@@ -38,7 +39,6 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                         new Date(b.date).getTime() - new Date(a.date).getTime()
                     )
                     setEvents(sortedEvents)
-                    console.log(sortedEvents);
                 }
             } catch (error) {
                 console.error('Error fetching timeline:', error)
@@ -87,11 +87,11 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                                     <div className="flex-shrink-0 my-auto w-20">
                                         <div className="text-xs text-gray-400" >
                                             {new Date(event.date).toLocaleDateString('en-US', {
-                                                    year: 'numeric',
-                                                    month: 'short',
-                                                    day: 'numeric'
-                                                })}
-                                            </div>
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric'
+                                            })}
+                                        </div>
 
                                     </div>
                                     <div className="flex-grow relative">
@@ -104,10 +104,10 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                                             </div>
                                             {event.symptoms && (
                                                 <div className=' flex flex-wrap'>
-                                                {event.symptoms.map((symptom, index) => (
-                                                    <div key={index} className="text-xs w-fit text-gray-600 border rounded-full px-2 py-1 mr-2 my-1">{symptom}</div>
+                                                    {event.symptoms.map((symptom, index) => (
+                                                        <div key={index} className="text-xs w-fit text-gray-600 border rounded-full px-2 py-1 mr-2 my-1">{symptom}</div>
 
-                                                ))}
+                                                    ))}
                                                 </div>
                                             )}
                                             {/* {event.outcome && <div className='text-sm text-gray-700 my-2 border-t py-2  my-2'>
@@ -129,6 +129,7 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
 
                             </div>
                         ))}
+                        <TimelineChart events={events} />
                     </div>
                 )}
             </div>
