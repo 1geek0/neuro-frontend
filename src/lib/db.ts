@@ -1,6 +1,7 @@
 // src/lib/db.ts
 import { PrismaClient } from '@prisma/client'
 import { v4 as uuidv4 } from 'uuid'
+import { processStoryToTimeline } from './embeddings'
 
 const prisma = new PrismaClient()
 export default prisma
@@ -91,6 +92,49 @@ export async function findSimilarStories(embedding: number[], limit: number = 5)
     throw error;
   }
 }
+
+async function updateTimelines() {
+    try {
+        const oldStories = await prisma.story.findMany({
+            select: {
+                id: true,
+                rawText: true
+            }
+        })
+
+        console.log(`Found ${oldStories.length} stories to update.`);
+
+
+        for (const story of oldStories) {
+            const { id, rawText } = story;
+
+            const updatedTimeline = await processStoryToTimeline(rawText);
+
+            await prisma.story.update({
+                where: { id },
+                data: {
+                    timelineJson: updatedTimeline
+                }
+            })
+
+            console.log(`Updated story ID: ${id}`);
+        }
+
+        console.log('All stories updated successfully.');
+    }
+    catch (error) {
+        console.error('Error updating stories:', error);
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
+
+
+
+
+
+
 
 // export async function findSimilarResearch(embedding: number[], limit: number = 5) {
 //   return prisma.$queryRaw`
