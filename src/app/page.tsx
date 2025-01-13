@@ -1,37 +1,37 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'
-import { useAuth0 } from '@auth0/auth0-react'
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Brain, Users, FileQuestion, BookOpen, ArrowRight } from 'lucide-react'
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth0 } from "@auth0/auth0-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Brain, Users, FileQuestion, BookOpen, ArrowRight } from "lucide-react";
 
 export default function LandingPage() {
-  const { isAuthenticated, loginWithPopup } = useAuth0()
-  const router = useRouter()
+  const { isAuthenticated, loginWithPopup } = useAuth0();
+  const router = useRouter();
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/home');
+      router.push("/home");
     }
-    localStorage.setItem('demoMode','False');
+    localStorage.setItem("demoMode", "False");
   }, [isAuthenticated, router]);
 
   const handleLogin = async () => {
     try {
-      localStorage.setItem('demoMode','False');
+      localStorage.setItem("demoMode", "False");
       // Trigger Auth0 login
       await loginWithPopup({
         authorizationParams: {
-          screen_hint: 'signin',
-        }
+          screen_hint: "signin",
+        },
       });
-      router.push('/home');
+      router.push("/home");
     } catch (error) {
-      console.error('Error during login:', error);
-      alert('Failed to log in. Please try again.');
+      console.error("Error during login:", error);
+      alert("Failed to log in. Please try again.");
     }
   };
 
@@ -73,9 +73,14 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 flex flex-col">
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm px-4 lg:px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center transition-all duration-300 hover:scale-105 hover:rotate-3">
+        <Link
+          href="/"
+          className="flex items-center transition-all duration-300 hover:scale-105 hover:rotate-3"
+        >
           <Brain className="h-7 w-7 text-purple-600 animate-pulse" />
-          <span className="ml-2 text-xl font-bold text-purple-600 tracking-tight">neuro86</span>
+          <span className="ml-2 text-xl font-bold text-purple-600 tracking-tight">
+            neuro86
+          </span>
         </Link>
         {!isAuthenticated && (
           <button
@@ -102,15 +107,17 @@ export default function LandingPage() {
                   </span>
                 </h1>
                 <p className="text-xl text-gray-600 max-w-xl">
-                  An anonymous community where you can share, learn, and connect with others facing similar challenges.
+                  Get answers, explore real stories, and connect with a
+                  community that understands because no one should face this
+                  journey alone.
                 </p>
                 <div className="space-y-6">
                   <Link href="/tutorial">
-                    <Button 
-                      size="lg" 
+                    <Button
+                      size="lg"
                       className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                     >
-                      Join Community
+                      Begin your Journey
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
@@ -135,13 +142,16 @@ export default function LandingPage() {
                   Community Support
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-gray-900">
-                  Living with meningioma can feel overwhelming, but you don't have to go through it alone.
+                  Living with meningioma can feel overwhelming, but you don't
+                  have to go through it alone.
                 </h2>
               </div>
               <div className="flex flex-col justify-center space-y-4">
                 <p className="text-gray-600 md:text-xl/relaxed lg:text-2xl/relaxed">
-                  <span className="font-bold text-purple-600">neuro86</span> is a safe, anonymous space where you can share your experiences,
-                  connect with others, and find the support you need on your journey.
+                  <span className="font-bold text-purple-600">neuro86</span> is
+                  a safe, anonymous space where you can share your experiences,
+                  connect with others, and find the support you need on your
+                  journey.
                 </p>
               </div>
             </div>
@@ -150,16 +160,48 @@ export default function LandingPage() {
         {/* Cards Section */}
         <section className="w-full py-20 md:py-32">
           <div className="container px-4 md:px-6">
+            <h2 className="text-3xl font-bold tracking-tighter md:text-3xl/tight text-gray-900 mb-6">
+              What you will get:
+            </h2>
             <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
               <Card className="p-6 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
                 <div className="flex items-center space-x-4">
-                  <Users className="h-8 w-8 text-purple-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">Share Your Story Anonymously</h3>
+                  <FileQuestion className="h-8 w-8 text-purple-600" />
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Answers to Your Toughest Questions
+                  </h3>
                 </div>
                 <ul className="mt-4 space-y-2 text-gray-600">
                   <li className="flex items-center space-x-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>Open up about your experiences without revealing your identity</span>
+                    <span>
+                      Get answers to the questions you hesitate to ask
+                      elsewhere.
+                    </span>
+                  </li>
+                  <li className="pl-6 text-sm italic">
+                    - "Can I eat ice cream two weeks after surgery?"
+                  </li>
+                  <li className="pl-6 text-sm italic">
+                    - "Why do I get headaches when I take this medication and go
+                    for a walk?"
+                  </li>
+                </ul>
+              </Card>
+              <Card className="p-6 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
+                <div className="flex items-center space-x-4">
+                  <Users className="h-8 w-8 text-purple-600" />
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    A Community That Gets It
+                  </h3>
+                </div>
+                <ul className="mt-4 space-y-2 text-gray-600">
+                  <li className="flex items-center space-x-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
+                    <span>
+                      Connect anonymously with people who truly understand what
+                      you're going through.
+                    </span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
@@ -169,47 +211,34 @@ export default function LandingPage() {
               </Card>
               <Card className="p-6 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
                 <div className="flex items-center space-x-4">
-                  <FileQuestion className="h-8 w-8 text-purple-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">Ask Your Questions Freely</h3>
-                </div>
-                <ul className="mt-4 space-y-2 text-gray-600">
-                  <li className="flex items-center space-x-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>Get answers to questions you might hesitate to ask your doctor</span>
-                  </li>
-                  <li className="pl-6 text-sm italic">- "Can I eat ice cream two weeks after surgery?"</li>
-                  <li className="pl-6 text-sm italic">- "Why do I get headaches when I take this medication and go for a walk?"</li>
-                </ul>
-              </Card>
-              <Card className="p-6 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
-                <div className="flex items-center space-x-4">
                   <Users className="h-8 w-8 text-purple-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">Connect with People Like You</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Personalized Guidance
+                  </h3>
                 </div>
                 <ul className="mt-4 space-y-2 text-gray-600">
                   <li className="flex items-center space-x-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>Find others who understand what you're going through</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>Build a network of support and friendship</span>
+                    <span>
+                      Explore stories and advice tailored to your unique needs.
+                    </span>
                   </li>
                 </ul>
               </Card>
               <Card className="p-6 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
                 <div className="flex items-center space-x-4">
                   <BookOpen className="h-8 w-8 text-purple-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">Access Helpful Resources</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Trusted Resources
+                  </h3>
                 </div>
                 <ul className="mt-4 space-y-2 text-gray-600">
                   <li className="flex items-center space-x-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>Discover hospitals and state-based services near you</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>Stay informed with the latest research and information on meningioma</span>
+                    <span>
+                      Find hospitals, state-specific services, and
+                      expert-approved information.
+                    </span>
                   </li>
                 </ul>
               </Card>
@@ -225,16 +254,24 @@ export default function LandingPage() {
                   You're Not Alone
                 </h2>
                 <p className="mx-auto max-w-[700px] text-gray-600 md:text-xl/relaxed lg:text-2xl/relaxed">
-                  Join <span className="font-bold text-purple-600">neuro86</span> today and be part of a community that understands. 
-                  Share, learn, and find the support you deserve.
+                  Join{" "}
+                  <span className="font-bold text-purple-600">neuro86</span>{" "}
+                  today and be part of a community that understands. Share,
+                  learn, and find the support you deserve.
                 </p>
               </div>
               <Link href="/tutorial">
-                <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white text-lg px-8 py-3 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105">
-                  Join the Community
+                <Button
+                  size="lg"
+                  className="bg-purple-600 hover:bg-purple-700 text-white text-lg px-8 py-3 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105"
+                >
+                  Begin your Journey
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
+              <p className="mx-auto max-w-[700px] text-gray-600 md:text-xl/relaxed lg:text-2xl/relaxed">
+                Take the first step toward support and answers.
+              </p>
             </div>
           </div>
         </section>
@@ -243,8 +280,9 @@ export default function LandingPage() {
         <div className="container px-4 md:px-6">
           <div className="text-center text-sm text-gray-600">
             <p className="mb-4">
-              <strong>Disclaimer:</strong> This is not for diagnosis. The platform is meant to help you track your journey
-              and connect with others. It's not intended for diagnosis or treatment.
+              <strong>Disclaimer:</strong> This platform is meant to help you
+              track your journey and connect with others. It is not intended for
+              diagnosis or treatment.
             </p>
             <p> {new Date().getFullYear()} neuro86. All rights reserved.</p>
           </div>
