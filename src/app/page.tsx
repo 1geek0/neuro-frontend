@@ -1,37 +1,37 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'
-import { useAuth0 } from '@auth0/auth0-react'
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Brain, Users, FileQuestion, BookOpen, ArrowRight } from 'lucide-react'
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth0 } from "@auth0/auth0-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Brain, Users, FileQuestion, BookOpen, ArrowRight } from "lucide-react";
 
 export default function LandingPage() {
-  const { isAuthenticated, loginWithPopup } = useAuth0()
-  const router = useRouter()
+  const { isAuthenticated, loginWithPopup } = useAuth0();
+  const router = useRouter();
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/home');
+      router.push("/home");
     }
-    localStorage.setItem('demoMode','False');
+    localStorage.setItem("demoMode", "False");
   }, [isAuthenticated, router]);
 
   const handleLogin = async () => {
     try {
-      localStorage.setItem('demoMode','False');
+      localStorage.setItem("demoMode", "False");
       // Trigger Auth0 login
       await loginWithPopup({
         authorizationParams: {
-          screen_hint: 'signin',
-        }
+          screen_hint: "signin",
+        },
       });
-      router.push('/home');
+      router.push("/home");
     } catch (error) {
-      console.error('Error during login:', error);
-      alert('Failed to log in. Please try again.');
+      console.error("Error during login:", error);
+      alert("Failed to log in. Please try again.");
     }
   };
 
@@ -117,7 +117,7 @@ export default function LandingPage() {
                       size="lg"
                       className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                     >
-                      Join Community
+                      Begin your Journey
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
@@ -160,41 +160,23 @@ export default function LandingPage() {
         {/* Cards Section */}
         <section className="w-full py-20 md:py-32">
           <div className="container px-4 md:px-6">
+            <h2 className="text-3xl font-bold tracking-tighter md:text-3xl/tight text-gray-900 mb-6">
+              What you will get:
+            </h2>
             <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
-              <Card className="p-6 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
-                <div className="flex items-center space-x-4">
-                  <Users className="h-8 w-8 text-purple-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">
-                    Share Your Story Anonymously
-                  </h3>
-                </div>
-                <ul className="mt-4 space-y-2 text-gray-600">
-                  <li className="flex items-center space-x-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>
-                      Open up about your experiences without revealing your
-                      identity
-                    </span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>Inspire and support others on a similar journey</span>
-                  </li>
-                </ul>
-              </Card>
               <Card className="p-6 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
                 <div className="flex items-center space-x-4">
                   <FileQuestion className="h-8 w-8 text-purple-600" />
                   <h3 className="text-2xl font-bold text-gray-900">
-                    Ask Your Questions Freely
+                    Answers to Your Toughest Questions
                   </h3>
                 </div>
                 <ul className="mt-4 space-y-2 text-gray-600">
                   <li className="flex items-center space-x-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
                     <span>
-                      Get answers to questions you might hesitate to ask your
-                      doctor
+                      Get answers to the questions you hesitate to ask
+                      elsewhere.
                     </span>
                   </li>
                   <li className="pl-6 text-sm italic">
@@ -210,19 +192,36 @@ export default function LandingPage() {
                 <div className="flex items-center space-x-4">
                   <Users className="h-8 w-8 text-purple-600" />
                   <h3 className="text-2xl font-bold text-gray-900">
-                    Connect with People Like You
+                    A Community That Gets It
                   </h3>
                 </div>
                 <ul className="mt-4 space-y-2 text-gray-600">
                   <li className="flex items-center space-x-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
                     <span>
-                      Find others who understand what you're going through
+                      Connect anonymously with people who truly understand what
+                      you're going through.
                     </span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>Build a network of support and friendship</span>
+                    <span>Inspire and support others on a similar journey</span>
+                  </li>
+                </ul>
+              </Card>
+              <Card className="p-6 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
+                <div className="flex items-center space-x-4">
+                  <Users className="h-8 w-8 text-purple-600" />
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Personalized Guidance
+                  </h3>
+                </div>
+                <ul className="mt-4 space-y-2 text-gray-600">
+                  <li className="flex items-center space-x-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
+                    <span>
+                      Explore stories and advice tailored to your unique needs.
+                    </span>
                   </li>
                 </ul>
               </Card>
@@ -230,21 +229,15 @@ export default function LandingPage() {
                 <div className="flex items-center space-x-4">
                   <BookOpen className="h-8 w-8 text-purple-600" />
                   <h3 className="text-2xl font-bold text-gray-900">
-                    Access Helpful Resources
+                    Trusted Resources
                   </h3>
                 </div>
                 <ul className="mt-4 space-y-2 text-gray-600">
                   <li className="flex items-center space-x-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
                     <span>
-                      Discover hospitals and state-based services near you
-                    </span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>
-                      Stay informed with the latest research and information on
-                      meningioma
+                      Find hospitals, state-specific services, and
+                      expert-approved information.
                     </span>
                   </li>
                 </ul>
@@ -272,10 +265,13 @@ export default function LandingPage() {
                   size="lg"
                   className="bg-purple-600 hover:bg-purple-700 text-white text-lg px-8 py-3 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105"
                 >
-                  Join the Community
+                  Begin your Journey
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
+              <p className="mx-auto max-w-[700px] text-gray-600 md:text-xl/relaxed lg:text-2xl/relaxed">
+                Take the first step toward support and answers.
+              </p>
             </div>
           </div>
         </section>
