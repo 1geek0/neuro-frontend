@@ -329,7 +329,9 @@ export default function HomePage() {
                                 </div>
                             ) :
 
-                                similarStories.map((story, index) => (
+                                similarStories.map((story, index) => {
+                                    console.log(story);
+                                    return (
                                     <div
                                         key={index}
                                         className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
@@ -365,7 +367,7 @@ export default function HomePage() {
                                             </button>
                                         )}
                                     </div>
-                                ))
+                                )})
                             }
                             <button
                                 onClick={() => window.open(DISCOURSE_URL, '_blank')}
