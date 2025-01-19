@@ -114,15 +114,33 @@ interface props {
 
 export function TimelineChart({ events }: props) {
   let reversedEvents = events;
-  if ((new Date(reversedEvents[0].date)).getTime() > (new Date(reversedEvents[1].date)).getTime()) {
+  if (reversedEvents[0].date && reversedEvents[1].date && (new Date(reversedEvents[0].date)).getTime() > (new Date(reversedEvents[1].date)).getTime()) {
     reversedEvents = [...reversedEvents].reverse();
   }
 
-  const chartArray = reversedEvents.map((event: any) => ({
-    day: (((((new Date(event.date)).getTime()) / (1000 * 60 * 60)) - (((new Date(reversedEvents[0].date)).getTime()) / (1000 * 60 * 60))) / 24),
-    phase: event.phase,
-    color: ""
-  }))
+  const chartArray = reversedEvents.map((event: any) => {
+    var firstDay;
+    if (reversedEvents[0].date) {
+      firstDay = reversedEvents[0].date
+    } else {
+      firstDay = 0;
+    }
+
+    var eventDay;
+    if (event.date) {
+      eventDay = event.date;
+    } else {
+      eventDay = 0;
+    }
+    const day = (((((new Date(eventDay)).getTime()) / (1000 * 60 * 60)) - (((new Date(firstDay)).getTime()) / (1000 * 60 * 60))) / 24);
+
+    return {
+      day: day > 0 ? day : 0,
+      phase: event.phase,
+      color: ""
+    }
+  }
+  )
 
 
   const phases = [...new Set(reversedEvents.map((event: TimelineEvent) => event.phase))];
