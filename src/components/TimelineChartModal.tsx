@@ -36,7 +36,7 @@ export function TimelineChatModal({ isOpen, onClose }: TimelineChartModalProps) 
                 if (data.timeline) {
                     // Sort events by date in descending order
                     const sortedEvents = data.timeline.sort((a: TimelineEvent, b: TimelineEvent) =>
-                        new Date(b.date).getTime() - new Date(a.date).getTime()
+                        new Date(b.date ? b.date : 0).getTime() - new Date(a.date ? a.date : 0).getTime()
                     )
                     setEvents(sortedEvents)
                 }
