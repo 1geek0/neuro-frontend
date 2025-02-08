@@ -10,7 +10,7 @@ import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
 import { demoSimilarStories } from '@/Demo/demoSimilarStories'
 
-const DISCOURSE_URL = 'https://neuro86.discourse.group';
+const SUBREDDIT_URL = 'https://www.reddit.com/r/Neuro86_Community/';
 
 export interface Story {
     id: string;
@@ -200,19 +200,19 @@ export default function HomePage() {
         }
     }, []); // Run once on mount, but check URL params inside
 
-    const handleDiscourseSSO = async () => {
-        if (!user) return;
+    // const handleDiscourseSSO = async () => {
+    //     if (!user) return;
 
-        try {
-            setIsLoadingSSO(true);
-            if (typeof window !== 'undefined') {
-                window.location.href = `${DISCOURSE_URL}/session/sso`;
-            }
-        } catch (error) {
-            console.error('Error during SSO:', error);
-            setIsLoadingSSO(false);
-        }
-    };
+    //     try {
+    //         setIsLoadingSSO(true);
+    //         if (typeof window !== 'undefined') {
+    //             window.location.href = `${DISCOURSE_URL}/session/sso`;
+    //         }
+    //     } catch (error) {
+    //         console.error('Error during SSO:', error);
+    //         setIsLoadingSSO(false);
+    //     }
+    // };
 
     const handleLogout = async () => {
         try {
@@ -370,10 +370,10 @@ export default function HomePage() {
                                 )})
                             }
                             <button
-                                onClick={() => window.open(DISCOURSE_URL, '_blank')}
+                                onClick={() => window.open(SUBREDDIT_URL, '_blank')}
                                 className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
                             >
-                                Go to Discourse Forum <ArrowRight className="h-4 w-4" />
+                                Go to Forum <ArrowRight className="h-4 w-4" />
                             </button>
 
                             <button

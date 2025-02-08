@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Mic, MicOff, Loader2, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth0 } from '@auth0/auth0-react'
@@ -15,7 +15,7 @@ export default function StoryInput({ redirectPath, defaultValue }: StoryInputPro
   const [story, setStory] = useState<string>(defaultValue || '')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
-  const { loginWithPopup, isAuthenticated, isLoading, getAccessTokenSilently, getIdTokenClaims } = useAuth0()
+  const { loginWithPopup, isAuthenticated, isLoading } = useAuth0()
   const authenticatedFetch = useAuthenticatedFetch()
 
   const handleSubmit = async () => {
@@ -30,28 +30,53 @@ export default function StoryInput({ redirectPath, defaultValue }: StoryInputPro
             screen_hint: 'signup',
           }
         });
+        return;
       }
 
-      const response = await authenticatedFetch('/api/story', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ story }),
-      });
+      await submitStory();
 
-      if (!response.ok) {
-        throw new Error('Failed to submit story');
-      }
-
-      router.push(redirectPath);
     } catch (error) {
-      console.error('Error submitting story:', error)
+      console.error('Error in handleSubmit:', error)
       alert('Failed to submit story. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
   }
+
+  const submitStory = async () => {
+    const response = await authenticatedFetch('/api/story', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ story: story.trim() }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to submit story');
+    }
+
+    const result = await response.json();
+    if (result.success) {
+      router.push(redirectPath);
+    } else {
+      throw new Error('Story submission failed');
+    }
+  }
+
+  useEffect(() => {
+    if (isAuthenticated && story.trim() && isSubmitting) {
+      submitStory()
+        .catch(error => {
+          console.error('Error submitting story after auth:', error);
+          alert('Failed to submit story. Please try again.');
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+        });
+    }
+  }, [isAuthenticated]);
 
   const isButtonDisabled = !story.trim() || isSubmitting || isLoading;
 
@@ -104,3 +129,4 @@ Advice I'd give to others facing a similar diagnosis:"
     </div>
   )
 }
+
