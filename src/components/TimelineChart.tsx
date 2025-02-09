@@ -113,15 +113,12 @@ interface props {
 
 
 export function TimelineChart({ events }: props) {
-  let reversedEvents = events;
-  if (reversedEvents[0].date && reversedEvents[1].date && (new Date(reversedEvents[0].date)).getTime() > (new Date(reversedEvents[1].date)).getTime()) {
-    reversedEvents = [...reversedEvents].reverse();
-  }
 
-  const chartArray = reversedEvents.map((event: any) => {
+
+  let chartArray = events.map((event: any) => {
     var firstDay;
-    if (reversedEvents[0].date) {
-      firstDay = reversedEvents[0].date
+    if (events[0].date) {
+      firstDay = events[0].date
     } else {
       firstDay = 0;
     }
@@ -141,9 +138,13 @@ export function TimelineChart({ events }: props) {
     }
   }
   )
+  if (chartArray[0].day && chartArray[1].day && chartArray[0].day > chartArray[1].day) {
+    chartArray = [...chartArray].reverse();
+  }
 
 
-  const phases = [...new Set(reversedEvents.map((event: TimelineEvent) => event.phase))];
+
+  const phases = [...new Set(chartArray.map((event: any) => event.phase))];
   // console.log(phases);
 
   const chartConfig = {
@@ -195,10 +196,10 @@ export function TimelineChart({ events }: props) {
               type="monotone"
               stroke="var(--color-day)"
               strokeWidth={2}
-              dot={({ payload, ...props }) => {
+              dot={({ payload, ...props}) => {
                 return (
                   <Dot
-                    key={payload.day}
+                    key={Math.random().toString(36)}
                     r={5}
                     cx={props.cx}
                     cy={props.cy}
