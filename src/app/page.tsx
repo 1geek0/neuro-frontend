@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation"
 import { useAuth0 } from "@auth0/auth0-react"
 import { Button } from "@/components/ui/button"
 import { Brain, Users, Clock, BookOpen, FileQuestion } from "lucide-react"
-import { motion } from "framer-motion"
 
 export default function LandingPage() {
   const { isAuthenticated, loginWithPopup } = useAuth0()
