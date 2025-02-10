@@ -1,97 +1,57 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth0 } from "@auth0/auth0-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Brain, Users, FileQuestion, BookOpen, ArrowRight } from "lucide-react";
+import Link from "next/link"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth0 } from "@auth0/auth0-react"
+import { Button } from "@/components/ui/button"
+import { Brain, Users, Clock, BookOpen, FileQuestion } from "lucide-react"
 
 export default function LandingPage() {
-  const { isAuthenticated, loginWithPopup } = useAuth0();
-  const router = useRouter();
+  const { isAuthenticated, loginWithPopup } = useAuth0()
+  const router = useRouter()
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/home");
+      router.push("/home")
     }
-    localStorage.setItem("demoMode", "False");
-  }, [isAuthenticated, router]);
+    localStorage.setItem("demoMode", "False")
+  }, [isAuthenticated, router])
 
   const handleLogin = async () => {
     try {
-      localStorage.setItem("demoMode", "False");
-      // Trigger Auth0 login
+      localStorage.setItem("demoMode", "False")
       await loginWithPopup({
         authorizationParams: {
           screen_hint: "signin",
         },
-      });
-      router.push("/home");
+      })
+      router.push("/home")
     } catch (error) {
-      console.error("Error during login:", error);
-      alert("Failed to log in. Please try again.");
+      console.error("Error during login:", error)
+      alert("Failed to log in. Please try again.")
     }
-  };
-
-  // const handlePreFill = async () => {
-  //   const storyText = `So, they found a 2.8cm likely meningioma (on my left side, just above and behind my temple), incidentally at the ER last week when I went in for left sided numbness and hearing/vision issues, which they say are unrelated. I don't have headaches or any other obvious symptoms from it, though it sure looks creepy on the MRI taking up my brain like that.
-  //   Since then, I have seen my PCP, and two neurosurgeons. My PCP and the neurosurgeon at the university of washington both want to take the wait and see approach and do another MRI in May. They say it might be from hormones and once I go through menopause it will stop growing.
-  //   The second neurosurgeon I saw in bellevue says to have the surgery, take it out while I'm young before it causes me problems. That my brain and recovery time will all do better now at age a healthy 44, rather than when I get older and it gets calcified or more attached to my brain and THEN causes me problems. It is fairly large and doesn't have a lot of room to go before he suspects I will have problems.
-  //   The second surgeon has done lots of surgeries, and I really liked him, but he isn't at a world class institution, but operates at a large suburban hospital. He looks to be in his late 30s, early 40s. How important is it to do this at a more innovative center?`;
-  //   try {
-  //     // Submit the pre-filled story
-  //     await authenticatedFetch('/api/submit-story', {
-  //       method: 'POST',
-  //       body: JSON.stringify({ story: storyText }),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //     });
-
-  //     // Redirect to the next page after successful submission
-  //     router.push('/home');
-  //   } catch (error) {
-  //     console.error('Error submitting story:', error);
-  //     alert('Failed to submit the story. Please try again.');
-  //   }
-  // };
-
-  // const handleDemo = () => {
-  //   try {
-  //     handleSignIn();
-  //     localStorage.setItem('demoMode','True');
-  //     console.log('demo set to true');
-  //     // router.push('/home');
-  //   } catch (error) {
-  //     console.error('Error setting demo:', error);
-  //     alert('Failed to set demo. Please try again.');
-  //   }
-  // }
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 flex flex-col">
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm px-4 lg:px-6 h-16 flex items-center justify-between">
-        <Link
-          href="/"
-          className="flex items-center transition-all duration-300 hover:scale-105 hover:rotate-3"
-        >
-          <Brain className="h-7 w-7 text-purple-600 animate-pulse" />
-          <span className="ml-2 text-xl font-bold text-purple-600 tracking-tight">
-            neuro86
-          </span>
-        </Link>
-        {!isAuthenticated && (
-          <button
+    <div className="min-h-screen flex flex-col bg-white">
+      <header className="sticky top-0 z-50 w-full border-b bg-white">
+        <div className="container flex h-16 items-center justify-between">
+          <Link href="/" className="flex items-center space-x-2 transition-transform duration-300 hover:scale-105">
+            <Brain className="h-8 w-8 text-purple-600" />
+            <span className="text-2xl font-bold text-purple-600">neuro86</span>
+          </Link>
+          <Button
+            variant="ghost"
+            className="text-black hover:text-purple-600 hover:bg-transparent transition-colors duration-300"
             onClick={handleLogin}
-            className="text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105 hover:tracking-wider"
           >
             Sign In
-          </button>
-        )}
+          </Button>
+        </div>
       </header>
-      <main className="flex-1 overflow-hidden">
+
+      <main className="flex-1">
         {/* Hero Section */}
         <section className="w-full py-12 md:py-20 lg:py-24 relative">
           <div className="container px-4 md:px-6">
@@ -118,7 +78,9 @@ export default function LandingPage() {
                       className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                     >
                       Begin your Journey
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      <svg className="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
                     </Button>
                   </Link>
                 </div>
@@ -133,161 +95,82 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-        {/* Features Section */}
-        <section className="w-full py-20 md:py-32 bg-white">
+
+        {/* What you will get Section */}
+        <section className="w-full py-20 bg-[#F8F7FC]">
           <div className="container px-4 md:px-6">
-            <div className="grid gap-10 lg:grid-cols-2 lg:gap-20 items-center">
-              <div className="space-y-4">
-                <div className="inline-flex items-center rounded-full bg-purple-100 px-4 py-1.5 text-sm font-medium text-purple-600 transition-transform hover:scale-105">
-                  Community Support
+            <h2 className="text-4xl font-semibold text-gray-900 mb-16">What you will get</h2>
+            <div className="grid gap-8 md:grid-cols-2">
+              <div className="flex gap-4">
+                <div className="bg-purple-600 p-3 h-fit rounded-lg">
+                  <Clock className="h-6 w-6 text-white" />
                 </div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-gray-900">
-                  Living with meningioma can feel overwhelming, but you don't
-                  have to go through it alone.
-                </h2>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Answers to Your Toughest Questions</h3>
+                  <p className="text-gray-600">
+                    Why do I feel dizzy after surgery? Can I eat ice cream now?" Get answers to the questions you
+                    hesitate to ask elsewhere.
+                  </p>
+                </div>
               </div>
-              <div className="flex flex-col justify-center space-y-4">
-                <p className="text-gray-600 md:text-xl/relaxed lg:text-2xl/relaxed">
-                  <span className="font-bold text-purple-600">neuro86</span> is
-                  a safe, anonymous space where you can share your experiences,
-                  connect with others, and find the support you need on your
-                  journey.
-                </p>
+              <div className="flex gap-4">
+                <div className="bg-purple-600 p-3 h-fit rounded-lg">
+                  <Users className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">A Community That Gets It</h3>
+                  <p className="text-gray-600">
+                    Connect anonymously with people who truly understand what you're going through.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="bg-purple-600 p-3 h-fit rounded-lg">
+                  <FileQuestion className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Personalized Guidance</h3>
+                  <p className="text-gray-600">Explore stories and advice tailored to your unique needs.</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="bg-purple-600 p-3 h-fit rounded-lg">
+                  <BookOpen className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Trusted Resources</h3>
+                  <p className="text-gray-600">
+                    Find hospitals, state-specific services, and expert-approved information.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </section>
-        {/* Cards Section */}
-        <section className="w-full py-20 md:py-32">
-          <div className="container px-4 md:px-6">
-            <h2 className="text-3xl font-bold tracking-tighter md:text-3xl/tight text-gray-900 mb-6">
-              What you will get:
-            </h2>
-            <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
-              <Card className="p-6 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
-                <div className="flex items-center space-x-4">
-                  <FileQuestion className="h-8 w-8 text-purple-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">
-                    Answers to Your Toughest Questions
-                  </h3>
-                </div>
-                <ul className="mt-4 space-y-2 text-gray-600">
-                  <li className="flex items-center space-x-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>
-                      Get answers to the questions you hesitate to ask
-                      elsewhere.
-                    </span>
-                  </li>
-                  <li className="pl-6 text-sm italic">
-                    - "Can I eat ice cream two weeks after surgery?"
-                  </li>
-                  <li className="pl-6 text-sm italic">
-                    - "Why do I get headaches when I take this medication and go
-                    for a walk?"
-                  </li>
-                </ul>
-              </Card>
-              <Card className="p-6 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
-                <div className="flex items-center space-x-4">
-                  <Users className="h-8 w-8 text-purple-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">
-                    A Community That Gets It
-                  </h3>
-                </div>
-                <ul className="mt-4 space-y-2 text-gray-600">
-                  <li className="flex items-center space-x-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>
-                      Connect anonymously with people who truly understand what
-                      you're going through.
-                    </span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>Inspire and support others on a similar journey</span>
-                  </li>
-                </ul>
-              </Card>
-              <Card className="p-6 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
-                <div className="flex items-center space-x-4">
-                  <Users className="h-8 w-8 text-purple-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">
-                    Personalized Guidance
-                  </h3>
-                </div>
-                <ul className="mt-4 space-y-2 text-gray-600">
-                  <li className="flex items-center space-x-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>
-                      Explore stories and advice tailored to your unique needs.
-                    </span>
-                  </li>
-                </ul>
-              </Card>
-              <Card className="p-6 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
-                <div className="flex items-center space-x-4">
-                  <BookOpen className="h-8 w-8 text-purple-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">
-                    Trusted Resources
-                  </h3>
-                </div>
-                <ul className="mt-4 space-y-2 text-gray-600">
-                  <li className="flex items-center space-x-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-600"></span>
-                    <span>
-                      Find hospitals, state-specific services, and
-                      expert-approved information.
-                    </span>
-                  </li>
-                </ul>
-              </Card>
-            </div>
-          </div>
-        </section>
-        {/* Call to Action Section */}
-        <section className="w-full py-20 md:py-32 bg-purple-50">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-6 text-center">
-              <div className="space-y-2 max-w-3xl">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-gray-900">
-                  You're Not Alone
-                </h2>
-                <p className="mx-auto max-w-[700px] text-gray-600 md:text-xl/relaxed lg:text-2xl/relaxed">
-                  Join{" "}
-                  <span className="font-bold text-purple-600">neuro86</span>{" "}
-                  today and be part of a community that understands. Share,
-                  learn, and find the support you deserve.
-                </p>
-              </div>
-              <Link href="/tutorial">
-                <Button
-                  size="lg"
-                  className="bg-purple-600 hover:bg-purple-700 text-white text-lg px-8 py-3 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105"
-                >
-                  Begin your Journey
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <p className="mx-auto max-w-[700px] text-gray-600 md:text-xl/relaxed lg:text-2xl/relaxed">
-                Take the first step toward support and answers.
-              </p>
-            </div>
-          </div>
+
+        {/* CTA Section */}
+        <section className="w-full py-20 flex flex-col items-center justify-center text-center">
+          <Button
+            size="lg"
+            onClick={handleLogin}
+            className="bg-purple-600 hover:bg-purple-700 text-white text-xl px-12 py-6 rounded-full shadow-lg transition-all duration-300"
+          >
+            Begin your Journey
+          </Button>
+          <p className="mt-6 text-gray-600 text-lg">Take the first step toward support and answers.</p>
         </section>
       </main>
-      <footer className="w-full border-t bg-white py-8">
-        <div className="container px-4 md:px-6">
-          <div className="text-center text-sm text-gray-600">
-            <p className="mb-4">
-              <strong>Disclaimer:</strong> This platform is meant to help you
-              track your journey and connect with others. It is not intended for
-              diagnosis or treatment.
-            </p>
-            <p> {new Date().getFullYear()} neuro86. All rights reserved.</p>
-          </div>
+
+      <footer className="border-t py-8 bg-white">
+        <div className="container flex flex-col items-center gap-4 text-center">
+          <p className="text-sm text-gray-500 max-w-2xl">
+            <strong>Disclaimer:</strong> This platform is meant to help you track your journey and connect with others.
+            It's not intended for diagnosis or treatment.
+          </p>
+          <p className="text-sm text-gray-400">© {new Date().getFullYear()} neuro86. All rights reserved.</p>
         </div>
       </footer>
     </div>
-  );
+  )
 }
+
