@@ -113,9 +113,7 @@ interface props {
 
 
 export function TimelineChart({ events }: props) {
-
-
-  let chartArray = events.map((event: any) => {
+  let chartArray = events.map((event: TimelineEvent) => {
     var firstDay;
     if (events[0].date) {
       firstDay = events[0].date
@@ -138,9 +136,11 @@ export function TimelineChart({ events }: props) {
     }
   }
   )
-  if (chartArray[0].day && chartArray[1].day && chartArray[0].day > chartArray[1].day) {
-    chartArray = [...chartArray].reverse();
-  }
+
+  // if (chartArray[0].day && chartArray[1].day && chartArray[0].day > chartArray[1].day) {
+  //   chartArray = [...chartArray].reverse();
+  // }
+  console.log(chartArray)
 
 
 

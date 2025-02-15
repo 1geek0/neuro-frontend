@@ -9,6 +9,7 @@ export interface TimelineEvent {
     phase: string
     type: string
     date: string | null | undefined
+    dayFromStart? : number | undefined | null
     symptoms?: string[]
     description: string[] | string
     outcome?: string
@@ -20,59 +21,7 @@ interface TimelineModalProps {
 }
 
 export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
-    const [events, setEvents] = useState<TimelineEvent[]>([
-        {
-          "phase": "pre-surgery",
-          "type": "consultation",
-          "date": null,
-          "description": "Surgeon's assistant informed patient about titanium plate replacement for skull section",
-          "outcome": "Unexpected surgical modification"
-        },
-        {
-          "phase": "surgery",
-          "type": "brain_tumor_removal",
-          "date": null,
-          "description": "Tumor removal surgery with general anesthesia",
-          "outcome": "Complete tumor removal reported"
-        },
-        {
-          "phase": "post-surgery",
-          "type": "symptoms",
-          "date": null,
-          "description": "Speech and cognitive challenges",
-          "symptoms": [
-            "Word retrieval difficulties",
-            "Memory recall issues",
-            "Temporary location name confusion"
-          ]
-        },
-        {
-          "phase": "post-surgery",
-          "type": "recovery",
-          "date": null,
-          "description": "Discharge from hospital"
-        },
-        {
-          "phase": "post-surgery",
-          "type": "symptoms",
-          "date": null,
-          "description": "Ongoing post-operative symptoms",
-          "symptoms": [
-            "Fatigue",
-            "Swelling around surgical site",
-            "Sinus fluid sensation",
-            "Scalp itching",
-            "Reduced sensation around scar",
-            "Surgical scar"
-          ]
-        },
-        {
-          "phase": "post-surgery",
-          "type": "procedure",
-          "date": null,
-          "description": "Staple removal"
-        }
-      ])
+    const [events, setEvents] = useState<TimelineEvent[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const authenticatedFetch = useAuthenticatedFetch()
 
@@ -86,9 +35,9 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                 if (!response.ok) throw new Error('Failed to fetch timeline')
                 const data = await response.json()
                 if (data.timeline) {
-                    // Sort events by date in descending order
+                    // Sort events by date in ascending order
                     const sortedEvents = data.timeline.sort((a: TimelineEvent, b: TimelineEvent) =>
-                        new Date(b.date ? b.date : 0).getTime() - new Date(a.date ? a.date : 0).getTime()
+                        new Date(a.date ? a.date : 0).getTime() - new Date(b.date ? b.date : 0).getTime()
                     )
                     setEvents(sortedEvents)
                 }
@@ -158,7 +107,6 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                                                 <div className=' flex flex-wrap'>
                                                     {event.symptoms.map((symptom, index) => (
                                                         <div key={index} className="text-xs w-fit text-gray-600 border rounded-full px-2 py-1 mr-2 my-1">{symptom}</div>
-
                                                     ))}
                                                 </div>
                                             )}
