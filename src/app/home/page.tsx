@@ -42,7 +42,7 @@ export default function HomePage() {
     const [similarStories, setSimilarStories] = useState<Story[]>([])
     const [isLoadingSimilarStories, setIsLoadingSimilarStories] = useState<Boolean>(false);
     const [research, setResearch] = useState<Research[]>([])
-    const [isLoadingResearch,setIsLoadingResearch] = useState<Boolean>(false);
+    const [isLoadingResearch, setIsLoadingResearch] = useState<Boolean>(false);
     const [state, setState] = useState('')
     const router = useRouter()
     const [selectedStory, setSelectedStory] = useState<Story | null>(null)
@@ -140,7 +140,7 @@ export default function HomePage() {
                     }
                     const data = await research.json();
                     // Showing just two researches for now
-                    const medicalResearch = data.slice(0,2);
+                    const medicalResearch = data.slice(0, 2);
                     setResearch(medicalResearch);
                 }
                 catch (error) {
@@ -290,7 +290,22 @@ export default function HomePage() {
                     <span className="ml-2 text-xl font-bold text-purple-600 tracking-tight">neuro86</span>
                 </div>
 
+
                 <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => window.open(SUBREDDIT_URL, '_blank')}
+                        className="bg-purple-100 text-purple-600 rounded-lg px-4 py-2 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
+                    >
+                        Go to Forum
+                        {/* <ArrowRight className="h-4 w-4" /> */}
+                    </button>
+                    <button
+                        onClick={() => router.push('/notes')}
+                        className="bg-purple-100 text-purple-600 rounded-lg px-4 py-2 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
+                    >
+                        My Story
+                        {/* <ArrowRight className="h-4 w-4" /> */}
+                    </button>
                     {demoMode && (
                         <button
                             onClick={handleLogin}
@@ -331,44 +346,45 @@ export default function HomePage() {
                                 similarStories.map((story, index) => {
                                     console.log(story);
                                     return (
-                                    <div
-                                        key={index}
-                                        className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
-                                        onClick={() => setSelectedStory(story)}
-                                    >
-                                        <h3 className="font-semibold mb-2 text-gray-900">{story.title}</h3>
-                                        <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
-                                        {story.link && (
-                                            <div className="flex justify-between items-end mt-2">
+                                        <div
+                                            key={index}
+                                            className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
+                                            onClick={() => setSelectedStory(story)}
+                                        >
+                                            <h3 className="font-semibold mb-2 text-gray-900">{story.title}</h3>
+                                            <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
+                                            {story.link && (
+                                                <div className="flex justify-between items-end mt-2">
+                                                    <button
+                                                        onClick={() => setSelectedStory(story)}
+                                                        className="text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105 hover:tracking-wider flex items-center gap-2"
+                                                    >
+                                                        Read More <ChevronRight className="h-4 w-4" />
+                                                    </button>
+                                                    <a
+                                                        href={story.link}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105 hover:tracking-wider flex items-center gap-2"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        View original post <ChevronRight className="h-4 w-4" />
+                                                    </a>
+                                                </div>
+                                            )}
+                                            {!story.link && (
                                                 <button
                                                     onClick={() => setSelectedStory(story)}
-                                                    className="text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105 hover:tracking-wider flex items-center gap-2"
+                                                    className="text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105 hover:tracking-wider flex items-center gap-2 mt-2"
                                                 >
                                                     Read More <ChevronRight className="h-4 w-4" />
                                                 </button>
-                                                <a
-                                                    href={story.link}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105 hover:tracking-wider flex items-center gap-2"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    View original post <ChevronRight className="h-4 w-4" />
-                                                </a>
-                                            </div>
-                                        )}
-                                        {!story.link && (
-                                            <button
-                                                onClick={() => setSelectedStory(story)}
-                                                className="text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105 hover:tracking-wider flex items-center gap-2 mt-2"
-                                            >
-                                                Read More <ChevronRight className="h-4 w-4" />
-                                            </button>
-                                        )}
-                                    </div>
-                                )})
+                                            )}
+                                        </div>
+                                    )
+                                })
                             }
-                            <button
+                            {/* <button
                                 onClick={() => window.open(SUBREDDIT_URL, '_blank')}
                                 className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
                             >
@@ -380,7 +396,7 @@ export default function HomePage() {
                                 className="w-full bg-purple-100 text-purple-600 rounded-lg p-3 hover:bg-purple-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center gap-2 font-medium"
                             >
                                 Add more to your story <ArrowRight className="h-4 w-4" />
-                            </button>
+                            </button> */}
                         </div>
                     </section>
 
@@ -390,26 +406,26 @@ export default function HomePage() {
                             <h2 className="text-xl font-bold mb-4 text-gray-900">Latest Research on Meningioma</h2>
                             <div className="space-y-4">
                                 {isLoadingResearch ? (
-                                <div className="text-center py-8">
-                                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
-                                    <p className="text-sm text-gray-500 mt-2">Loading Latest Research...</p>
-                                </div>
-                            ) :
-                                
-                                research.map((item,) => (
-                                    <a
-                                        key={item.id}
-                                        href={item.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="block border rounded-lg p-4 hover:bg-gray-50"
-                                    >
-                                        <h3 className="font-semibold mb-2 text-gray-900">{item.title}</h3>
-                                        <p className="text-sm text-gray-900 line-clamp-2">
-                                            {item.content}
-                                        </p>
-                                    </a>
-                                ))}
+                                    <div className="text-center py-8">
+                                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
+                                        <p className="text-sm text-gray-500 mt-2">Loading Latest Research...</p>
+                                    </div>
+                                ) :
+
+                                    research.map((item,) => (
+                                        <a
+                                            key={item.id}
+                                            href={item.link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block border rounded-lg p-4 hover:bg-gray-50"
+                                        >
+                                            <h3 className="font-semibold mb-2 text-gray-900">{item.title}</h3>
+                                            <p className="text-sm text-gray-900 line-clamp-2">
+                                                {item.content}
+                                            </p>
+                                        </a>
+                                    ))}
                             </div>
                         </section>
 
