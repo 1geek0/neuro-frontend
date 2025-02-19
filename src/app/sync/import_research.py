@@ -18,6 +18,7 @@ base_id = os.getenv("AIRTABLE_BASE_ID")
 tables = {
     "Patient Relevant Resources": "patient_relevant_resources",
     "State Medical Resources": "state_medical_resources",
+    "Hospital Facilities": "hospital_facilities",
 }
 
 # OpenAI Configuration
@@ -48,18 +49,6 @@ def validate_env_vars():
             f"Missing required environment variables: {', '.join(missing_vars)}\n"
             "Please check your .env file and ensure all required variables are set."
         )
-
-def generate_embedding(text: str) -> list:
-    """Generate embedding using OpenAI's API."""
-    try:
-        response = openai.Embedding.create(
-            model="text-embedding-ada-002",
-            input=text
-        )
-        return response['data'][0]['embedding']
-    except Exception as e:
-        print(f"\nError generating embedding: {e}")
-        raise
 
 def delete_existing_data():
     """Delete all data from specified MongoDB collections."""
@@ -103,86 +92,72 @@ def fetch_and_store_records():
             with tqdm(total=len(records), desc=f"Processing {table_name}") as pbar:
                 for record in records:
                     fields = record.get("fields", {})
+                    document = {
+                        "_id": record.get("id"),  # Use Airtable record ID as MongoDB ID
+                        "createdAt": fields.get("createdAt", datetime.utcnow().isoformat()),
+                        "updatedAt": datetime.utcnow().isoformat(),
+                    }
 
-                    # Extract fields dynamically
+                    # Extract fields dynamically based on the table
                     if table_name == "Patient Relevant Resources":
-                        title = fields.get("Title")
-                        link = fields.get("Link")
-                        resource_type = fields.get("Resource Type")
-                        content = fields.get("All text", "")
+                        document.update({
+                            "title": fields.get("Title"),
+                            "link": fields.get("Link"),
+                            "resource_type": fields.get("Resource Type"),
+                            "content": fields.get("All text", ""),
+                        })
 
-                        # Prepare text for embedding
-                        text_for_embedding = f"{title} {content} {resource_type or ''}"
-
-                        # Skip if required fields are missing
-                        if not title:
+                        text_for_embedding = f"{document['title']} {document['content']} {document['resource_type'] or ''}"
+                        if not document["title"]:
                             skipped += 1
                             pbar.update(1)
                             continue
 
                         try:
-                            # Generate embeddings
-                            embedding = generate_embedding(text_for_embedding)
-
-                            # Prepare MongoDB document
-                            document = {
-                                "_id": record.get("id"),  # Use Airtable record ID as MongoDB ID
-                                "title": title,
-                                "link": link,
-                                "resource_type": resource_type,
-                                "content": content,
-                                "embedding": embedding,
-                                "createdAt": fields.get("createdAt", datetime.utcnow().isoformat()),
-                                "updatedAt": datetime.utcnow().isoformat(),
-                            }
-
-                            # Insert into MongoDB
-                            mongo_collection.update_one(
-                                {"_id": document["_id"]},  # Match by ID
-                                {"$set": document},        # Update fields
-                                upsert=True                # Insert if not found
-                            )
-
-                            created += 1
-
+                            document["embedding"] = openai.Embedding.create(
+                                model="text-embedding-ada-002",
+                                input=text_for_embedding
+                            )["data"][0]["embedding"]
                         except Exception as e:
-                            print(f"\n❌ Error processing record: {e}")
+                            print(f"\n❌ Error generating embedding: {e}")
                             skipped += 1
-
+                            pbar.update(1)
+                            continue
+                    
                     elif table_name == "State Medical Resources":
-                        name = fields.get("Name")
-                        state = fields.get("State")
-                        facility_type = fields.get("Facility Type")
-
-                        # Skip if required fields are missing
-                        if not name:
+                        document.update({
+                            "name": fields.get("Name"),
+                            "state": fields.get("State"),
+                            "facility_type": fields.get("Facility Type"),
+                        })
+                        if not document["name"]:
+                            skipped += 1
+                            pbar.update(1)
+                            continue
+                    
+                    elif table_name == "Hospital Facilities":
+                        document.update({
+                            "name": fields.get("Name"),
+                            "link": fields.get("Link"),
+                            "type": fields.get("Type"),
+                            "associated_to": fields.get("Associated To"),
+                        })
+                        if not document["name"]:
                             skipped += 1
                             pbar.update(1)
                             continue
 
-                        try:
-                            # Prepare MongoDB document
-                            document = {
-                                "_id": record.get("id"),  # Use Airtable record ID as MongoDB ID
-                                "name": name,
-                                "state": state,
-                                "facility_type": facility_type,
-                                "createdAt": fields.get("createdAt", datetime.utcnow().isoformat()),
-                                "updatedAt": datetime.utcnow().isoformat(),
-                            }
-
-                            # Insert into MongoDB
-                            mongo_collection.update_one(
-                                {"_id": document["_id"]},  # Match by ID
-                                {"$set": document},        # Update fields
-                                upsert=True                # Insert if not found
-                            )
-
-                            created += 1
-
-                        except Exception as e:
-                            print(f"\n❌ Error processing record: {e}")
-                            skipped += 1
+                    try:
+                        # Insert into MongoDB
+                        mongo_collection.update_one(
+                            {"_id": document["_id"]},  # Match by ID
+                            {"$set": document},        # Update fields
+                            upsert=True                # Insert if not found
+                        )
+                        created += 1
+                    except Exception as e:
+                        print(f"\n❌ Error processing record: {e}")
+                        skipped += 1
 
                     pbar.update(1)
 
@@ -193,7 +168,6 @@ def fetch_and_store_records():
 
     except Exception as e:
         print(f"\n❌ Error during processing: {e}")
-
 
 if __name__ == "__main__":
     fetch_and_store_records()
