@@ -136,9 +136,11 @@ export function TimelineChart({ events }: props) {
     }
   }
   )
-  if (chartArray[0].day && chartArray[1].day && chartArray[0].day > chartArray[1].day) {
-    chartArray = [...chartArray].reverse();
-  }
+
+  // if (chartArray[0].day && chartArray[1].day && chartArray[0].day > chartArray[1].day) {
+  //   chartArray = [...chartArray].reverse();
+  // }
+  console.log(chartArray)
 
   // if (chartArray[0].day && chartArray[1].day && chartArray[0].day > chartArray[1].day) {
   //   chartArray = [...chartArray].reverse();
