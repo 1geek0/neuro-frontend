@@ -25,19 +25,23 @@ export function TimelineChatModal({ isOpen, onClose }: TimelineChartModalProps) 
         const fetchTimelines = async () => {
             try {
                 const response1 = await authenticatedFetch('/api/similar-stories')
-                if (!response1.ok) throw new Error('Failed to fetch timeline')
+                console.log(response1)
+                if (!response1.ok) throw new Error('Failed to similar stories')
                 const stories = await response1.json();
                 const tlines = stories.map((story: any) => ({
                     events: story.timelineJson.events
                 }))
                 const response = await authenticatedFetch('/api/timeline')
+                console.log(response)
                 if (!response.ok) throw new Error('Failed to fetch timeline')
                 const data = await response.json()
+                
                 if (data.timeline) {
-                    // Sort events by date in descending order
+                    // Sort events by date in ascending order
                     const sortedEvents = data.timeline.sort((a: TimelineEvent, b: TimelineEvent) =>
-                        new Date(b.date ? b.date : 0).getTime() - new Date(a.date ? a.date : 0).getTime()
+                        new Date(a.date ? a.date : 0).getTime() - new Date(b.date ? b.date : 0).getTime()
                     )
+                    console.log(sortedEvents)
                     setEvents(sortedEvents)
                 }
                 setTimelines(tlines);
@@ -63,7 +67,7 @@ export function TimelineChatModal({ isOpen, onClose }: TimelineChartModalProps) 
                     </div>
                 ) : (
                     <>
-                        <div  className="flex justify-center flex-col items-center">
+                        <div className="flex justify-center flex-col items-center">
                             <h3 className="font-bold mb-6 text-gray-900 w-full">Your Timeline</h3>
                             <div className="w-4/5 ">
                                 <TimelineChart events={events} />

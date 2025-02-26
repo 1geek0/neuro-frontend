@@ -328,7 +328,6 @@ export default function HomePage() {
                                     <p className="text-sm text-gray-500 mt-2">Loading similar stories...</p>
                                 </div>
                             ) :
-
                                 similarStories.map((story, index) => {
                                     console.log(story);
                                     return (

@@ -62,7 +62,7 @@ export async function findSimilarStories(embedding: number[], limit: number = 5)
       pipeline: [
         {
           $search: {
-            index: "stories_vector_index",
+            index: "default",
             knnBeta: {
               vector: embedding,
               path: "embedding",
