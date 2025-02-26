@@ -3,114 +3,121 @@ import OpenAI from 'openai'
 
 const openai_client = new OpenAI()
 const anthropic = new Anthropic()
-const patientTimelineFormat = {
-  patient_details: {
+const patientTimeline = {
+  patientDetails: {
     id: "Unique_ID", // Unique identifier for the patient (string)
     age: 0, // Patient's age (number)
     sex: "M", // Patient's gender, e.g., "M" or "F" (string)
   },
   events: [
     /*
-      This is an array of event objects. Each object represents an event in the patient's timeline.
-      Each event must include the following key details:
-      - phase: The phase of care (string, e.g., "pre-diagnosis", "diagnosis", etc.)
-      - type: The type of event (string, e.g., "symptom", "medication", "test", etc.)
-      - date: The date of the event in the format YYYY-MM-DD (string)
-      - description: A brief description of the event (string)
-      Additional fields may be added depending on the event type.
+      This is an array of event objects. Each object represents a specific event in the patient's timeline.
+      The `day` field is dynamically calculated based on the `startDate`.
     */
     {
       phase: "phase_name", // Example: "pre-diagnosis"
       type: "event_type", // Example: "symptom"
       date: "YYYY-MM-DD", // Example: "2024-01-15"
+      dayFromStart: 0, // Day relative to the first event (calculated automatically)
       description: "Detailed description of the event", // Example: "Patient experienced persistent headaches"
-      // Optional additional fields depending on the event type:
-      symptoms : ["Symptoms of the disease"], // Example for any symptoms observed
-      drug_name: "Optional drug name", // Example for medication events
-      test_type: "Optional test type", // Example for test events
-      outcome: "Optional outcome", // Example for follow-up events
-    }
-  ]
+      symptoms: ["Symptom1", "Symptom2"], // Example for symptom events
+      drugName: "Optional drug name", // Example for medication events
+      testType: "Optional test type", // Example for test events
+      outcome: "Optional outcome", // Example for follow-up or result events
+
+    },
+    {
+      phase: "diagnosis",
+      type: "test",
+      date: "YYYY-MM-DD",
+      dayFromStart: 5, // Example of a calculated day relative to startDate
+      description: "MRI scan performed to investigate symptoms",
+      testType: "MRI",
+      outcome: "Lesion detected in brain",
+
+    },
+  ],
 };
 
 
-const sampleTimeline = {
-  "patient_details": {
-    "id": "MNG_2024_001",
-    "age": 45,
-    "sex": "F"
-  },
-  "events": [
-    {
-      "phase": "pre-diagnosis",
-      "type": "symptom",
-      "date": "2024-01-15",
-      "desc": "Persistent headaches and blurred vision"
-    },
-    {
-      "phase": "pre-diagnosis",
-      "type": "medication",
-      "date": "2024-01-15",
-      "end_date": "2024-02-15",
-      "drug_name": "Sumatriptan",
-      "drug_type": "Antimigraine",
-      "linked_symptoms": ["Headache"]
-    },
-    {
-      "phase": "diagnosis",
-      "type": "test",
-      "date": "2024-02-20",
-      "test_type": "MRI",
-      "specific_test": "MRI with Contrast",
-      "location": "Massachusetts General Hospital"
-    },
-    {
-      "phase": "diagnosis",
-      "type": "diagnosis",
-      "date": "2024-02-22",
-      "meningioma_grade": "WHO Grade 1",
-      "specific_type": "Fibrous Meningioma",
-      "linked_specific_tests": ["MRI with Contrast"]
-    },
-    {
-      "phase": "pre-surgery",
-      "type": "monitoring",
-      "date": "2024-03-01",
-      "desc": "Regular monitoring of tumor size and symptoms",
-      "frequency": "Monthly"
-    },
-    {
-      "phase": "pre-surgery",
-      "type": "experience",
-      "date": "2024-03-15",
-      "desc": "Anxiety about upcoming surgery"
-    },
-    {
-      "phase": "surgery",
-      "type": "surgery",
-      "date": "2024-04-01",
-      "treated_by": "Dr. Sarah Johnson",
-      "surgery_type": "Endoscopic Resection",
-      "surgery_site": "Skull Base",
-      "surgery_location": "Brigham and Women's Hospital"
-    },
-    {
-      "phase": "post-surgery",
-      "type": "follow-up",
-      "date": "2024-04-15",
-      "desc": "Post-surgical evaluation",
-      "outcome": "Good recovery, no complications"
-    },
-    {
-      "phase": "post-surgery",
-      "type": "regrowth",
-      "date": "2024-06-01",
-      "desc": "Small regrowth detected in follow-up MRI",
-      "size": "5mm",
-      "location": "Original tumor site"
-    }
-  ]
-}
+
+// const sampleTimeline = {
+//   "patient_details": {
+//     "id": "MNG_2024_001",
+//     "age": 45,
+//     "sex": "F"
+//   },
+//   "events": [
+//     {
+//       "phase": "pre-diagnosis",
+//       "type": "symptom",
+//       "date": "2024-01-15",
+//       "desc": "Persistent headaches and blurred vision"
+//     },
+//     {
+//       "phase": "pre-diagnosis",
+//       "type": "medication",
+//       "date": "2024-01-15",
+//       "end_date": "2024-02-15",
+//       "drug_name": "Sumatriptan",
+//       "drug_type": "Antimigraine",
+//       "linked_symptoms": ["Headache"]
+//     },
+//     {
+//       "phase": "diagnosis",
+//       "type": "test",
+//       "date": "2024-02-20",
+//       "test_type": "MRI",
+//       "specific_test": "MRI with Contrast",
+//       "location": "Massachusetts General Hospital"
+//     },
+//     {
+//       "phase": "diagnosis",
+//       "type": "diagnosis",
+//       "date": "2024-02-22",
+//       "meningioma_grade": "WHO Grade 1",
+//       "specific_type": "Fibrous Meningioma",
+//       "linked_specific_tests": ["MRI with Contrast"]
+//     },
+//     {
+//       "phase": "pre-surgery",
+//       "type": "monitoring",
+//       "date": "2024-03-01",
+//       "desc": "Regular monitoring of tumor size and symptoms",
+//       "frequency": "Monthly"
+//     },
+//     {
+//       "phase": "pre-surgery",
+//       "type": "experience",
+//       "date": "2024-03-15",
+//       "desc": "Anxiety about upcoming surgery"
+//     },
+//     {
+//       "phase": "surgery",
+//       "type": "surgery",
+//       "date": "2024-04-01",
+//       "treated_by": "Dr. Sarah Johnson",
+//       "surgery_type": "Endoscopic Resection",
+//       "surgery_site": "Skull Base",
+//       "surgery_location": "Brigham and Women's Hospital"
+//     },
+//     {
+//       "phase": "post-surgery",
+//       "type": "follow-up",
+//       "date": "2024-04-15",
+//       "desc": "Post-surgical evaluation",
+//       "outcome": "Good recovery, no complications"
+//     },
+//     {
+//       "phase": "post-surgery",
+//       "type": "regrowth",
+//       "date": "2024-06-01",
+//       "desc": "Small regrowth detected in follow-up MRI",
+//       "size": "5mm",
+//       "location": "Original tumor site"
+//     }
+//   ]
+// }
 
 
 export async function generateEmbedding(text: string): Promise<number[]> {
@@ -135,7 +142,7 @@ export async function processStoryToTimeline(text: string) {
       max_tokens: 1000,
       temperature: 0.2,
       system: `I am a helpful assistant that converts patient stories into structured timeline JSON format with this reference format:
-      \n\n${JSON.stringify(patientTimelineFormat,null,2)}
+      \n\n${JSON.stringify(patientTimeline, null, 2)}
       `,
       messages: [
         {
