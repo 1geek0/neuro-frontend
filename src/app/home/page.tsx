@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 // import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Modal } from '@/components/Modal'
 import { useAuth0 } from '@auth0/auth0-react'
-import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X, Brain, ArrowRight } from 'lucide-react'
+import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X, Brain, ArrowRight, MicroscopeIcon, PanelsTopLeft, Users, UsersRound, Hospital } from 'lucide-react'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
 import { demoSimilarStories } from '@/Demo/demoSimilarStories'
@@ -331,12 +331,15 @@ export default function HomePage() {
                     </div>
                 </div>
             ) : null}
-            <div className="container mx-auto px-4">
+            <div className="container mt-8 mx-auto px-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Similar Stories Section */}
-                    <section className="bg-white rounded-lg shadow p-6">
-                        <h2 className="text-xl font-bold mb-4 text-gray-900">Find people with stories like you</h2>
-                        <div className="space-y-4">
+                    <section className="bg-white border rounded-lg shadow p-6">
+                        <div className='flex items-center mb-4 gap-3'>
+                            <UsersRound className="w-6 h-6 text-purple-600" />
+                            <h2 className="text-xl font-extrabold text-gray-900">Find people with stories like you</h2>
+                        </div>
+                        <div className="space-y-4 flex flex-col items-center justify-center">
                             {isLoadingSimilarStories ? (
                                 <div className="text-center py-8">
                                     <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
@@ -351,7 +354,7 @@ export default function HomePage() {
                                             className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                                             onClick={() => setSelectedStory(story)}
                                         >
-                                            <h3 className="font-semibold mb-2 text-gray-900">{story.title}</h3>
+                                            <h3 className="font-extrabold text-lg mb-2 text-gray-900">{story.title}</h3>
                                             <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
                                             {story.link && (
                                                 <div className="flex justify-between items-end mt-2">
@@ -402,8 +405,11 @@ export default function HomePage() {
 
                     <div className="space-y-8">
                         {/* Research Section */}
-                        <section className="bg-white rounded-lg shadow p-6">
-                            <h2 className="text-xl font-bold mb-4 text-gray-900">Latest Research on Meningioma</h2>
+                        <section className="bg-white border rounded-lg shadow-sm p-6">
+                            <div className='flex items-center mb-4 gap-3'>
+                                <MicroscopeIcon className="w-6 h-6 text-purple-600" />
+                                <h2 className="text-xl font-extrabold  text-gray-900">Latest Research on Meningioma</h2>
+                            </div>
                             <div className="space-y-4">
                                 {isLoadingResearch ? (
                                     <div className="text-center py-8">
@@ -420,7 +426,7 @@ export default function HomePage() {
                                             rel="noopener noreferrer"
                                             className="block border rounded-lg p-4 hover:bg-gray-50"
                                         >
-                                            <h3 className="font-semibold mb-2 text-gray-900">{item.title}</h3>
+                                            <h3 className="font-extrabold text-lg mb-2 text-gray-900">{item.title}</h3>
                                             <p className="text-sm text-gray-900 line-clamp-2">
                                                 {item.content}
                                             </p>
@@ -430,10 +436,13 @@ export default function HomePage() {
                         </section>
 
                         {/* Medical Resources Section */}
-                        <section className="bg-white rounded-lg shadow p-6">
-                            <h2 className="text-xl font-bold mb-4 text-gray-900">
-                                Search for medical resources in any state
-                            </h2>
+                        <section className="bg-white border rounded-lg shadow-sm p-6">
+                            <div className='flex items-center mb-4 gap-3'>
+                                <Hospital className="w-6 h-6 text-purple-600" />
+                                <h2 className="text-xl font-extrabold text-gray-900">
+                                    Search for medical resources in any state
+                                </h2>
+                            </div>
                             <div className="relative">
                                 <div className="relative">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
