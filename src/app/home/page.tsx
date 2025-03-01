@@ -359,7 +359,7 @@ export default function HomePage() {
                                             className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
                                             onClick={() => setSelectedStory(story)}
                                         >
-                                            <h3 className="font-semibold mb-2 text-gray-900">{story.title}</h3>
+                                            <h3 className="font-extrabold text-lg mb-2 text-gray-900">{story.title}</h3>
                                             <p className="line-clamp-3 text-gray-900">{story.rawText}</p>
                                             {story.link && (
                                                 <div className="flex justify-between items-end mt-2">
@@ -431,7 +431,7 @@ export default function HomePage() {
                                             rel="noopener noreferrer"
                                             className="block border rounded-lg p-4 hover:bg-gray-50"
                                         >
-                                            <h3 className="font-semibold mb-2 text-gray-900">{item.title}</h3>
+                                            <h3 className="font-extrabold text-lg mb-2 text-gray-900">{item.title}</h3>
                                             <p className="text-sm text-gray-900 line-clamp-2">
                                                 {item.content}
                                             </p>
