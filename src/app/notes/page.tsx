@@ -25,6 +25,9 @@ const StoryNotes = () => {
   const [editedText, setEditedText] = useState('');
   const [showTimeline, setShowTimeline] = useState(false);
   const [showWhoElseTimeline, setShowWhoElseTimeline] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [storyToDelete, setStoryToDelete] = useState<Story | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
   const [demoMode, setDemoMode] = useState<Boolean>(false);
@@ -111,6 +114,7 @@ const StoryNotes = () => {
     }
   };
   const handleDeleteStory = async (id: string) => {
+    setIsDeleting(true);
     try {
       const response = await authenticatedFetch(`/api/story/${id}`, {
         method: 'DELETE',
@@ -129,6 +133,9 @@ const StoryNotes = () => {
     } catch (error) {
       console.error('Error deleting story:', error);
       alert('Failed to delete story. Please try again.');
+    } finally {
+      setIsConfirmingDelete(false);
+      setIsDeleting(false);
     }
   };
   if (isLoading) {
@@ -201,20 +208,20 @@ const StoryNotes = () => {
                     {story.title ? story.title : `Story ${index + 1}`}
                   </h2>
                 </div>
-                { !demoMode && <div className="flex flex-col gap-3">
+                {!demoMode && <div className="flex gap-3">
                   <button
                     onClick={() => handleEditStory(story)}
                     className="p-1 text-gray-600 hover:text-gray-700 rounded-full hover:bg-gray-100"
                     aria-label="Edit story"
                   >
-                    <PencilIcon className="w-7 h-7" />
+                    <PencilIcon className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => handleDeleteStory(story.id)}
+                    onClick={() => { setIsConfirmingDelete(true); setStoryToDelete(story) }}
                     className="p-1 text-gray-600 hover:text-red-700 rounded-full hover:bg-gray-100"
                     aria-label="Delete story"
                   >
-                    <Trash2 className="w-7 h-7" />
+                    <Trash2 className="w-5 h-5" />
                   </button>
                 </div>}
               </div>
@@ -224,7 +231,7 @@ const StoryNotes = () => {
 
           {stories.length === 0 && (
             <div className="text-center py-12 bg-white rounded-lg border">
-              <p className="text-gray-500">No stories yet. Click &quot;Add New Story&quot; to get started.</p>
+              <p className="text-gray-500">No stories yet. Click on Add New Story to get started.</p>
             </div>
           )}
         </div>
@@ -253,6 +260,40 @@ const StoryNotes = () => {
                 Save Changes
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {isConfirmingDelete && storyToDelete && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4'>
+          <div className='bg-white rounded-lg max-w-2xl p-6'>
+            {isDeleting ? (
+              <div className="text-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
+                <p className="text-sm text-gray-500 mt-2">Deleting your story</p>
+              </div>
+            ) :
+              <>
+                <h3 className='text-xl font-semibold'>Confirm Delete</h3>
+                <p className='text-gray-700 my-4'>Are you sure you want to delete this story?</p>
+                <div className='flex w-full justify-end gap-4 mt-4'>
+                  <button
+                    onClick={() => { setIsConfirmingDelete(false); setStoryToDelete(null) }}
+                    className='flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-800 font-medium transition-all duration-300 ease-in-out hover:scale-105'
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleDeleteStory(storyToDelete.id);
+                    }}
+                    className='px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-300 ease-in-out hover:scale-105 flex items-center justify-center'
+                  >
+                    Delete
+                  </button>
+                </div>
+              </>
+            }
           </div>
         </div>
       )}
