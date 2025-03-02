@@ -169,7 +169,7 @@ const StoryNotes = () => {
           {stories.map((story, index) => (
             <div
               key={story.id}
-              className="bg-white rounded-lg shadow p-6 space-y-4"
+              className="bg-white rounded-lg shadow-sm border p-6 space-y-4"
             >
               <div className="flex justify-between items-start">
                 <div>
