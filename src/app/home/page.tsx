@@ -449,7 +449,7 @@ export default function HomePage() {
                                     <input
                                         type="text"
                                         value={state}
-                                        onChange={(e) => setState(e.target.value)}
+                                        onChange={(e) => { setState(e.target.value); setStateResources([]) }}
                                         placeholder="Search states..."
                                         className="w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
                                     />
