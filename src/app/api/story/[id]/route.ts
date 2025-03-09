@@ -100,7 +100,9 @@ export async function DELETE(
       data : {timelineJson : null}
     })
 
+    console.log("Deleted Story.", deletedStory)
     console.log("Updated User.", updateUser);
+    
 
     if (!deletedStory.count) {
       return NextResponse.json(
