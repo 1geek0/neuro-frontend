@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PencilIcon, PlusCircle, Loader2, ArrowLeft, Lock, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import { TimelineModal } from '@/components/TimelineModal';
 import { demoSimilarStories } from '@/Demo/demoSimilarStories';
-import { TimelineChatModal } from '@/components/TimelineChartModal';
+import { TimelineChartModal } from '@/components/TimelineChartModal';
 
 interface Story {
   id: string;
@@ -302,7 +302,7 @@ const StoryNotes = () => {
         isOpen={showTimeline}
         onClose={() => setShowTimeline(false)}
       />
-      <TimelineChatModal
+      <TimelineChartModal
         isOpen={showWhoElseTimeline}
         onClose={() => setShowWhoElseTimeline(false)}
       />
