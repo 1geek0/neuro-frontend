@@ -1,4 +1,3 @@
-import { useSearchParams } from "next/navigation";
 import { Modal } from "./Modal";
 import { TimelineChart } from "./TimelineChart";
 import { useEffect, useState } from "react";
@@ -14,7 +13,7 @@ interface TimelineChartModalProps {
     isOpen: boolean
     onClose: () => void
 }
-export function TimelineChatModal({ isOpen, onClose }: TimelineChartModalProps) {
+export function TimelineChartModal({ isOpen, onClose }: TimelineChartModalProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [events, setEvents] = useState<TimelineEvent[]>([])
     const [timelines, setTimelines] = useState<Timelines[]>([])
