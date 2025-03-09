@@ -95,6 +95,13 @@ export async function DELETE(
       }
     });
 
+    const updateUser = await prisma.user.update({
+      where : { auth0Id },
+      data : {timelineJson : null}
+    })
+
+    console.log("Updated User.", updateUser);
+
     if (!deletedStory.count) {
       return NextResponse.json(
         { error: 'Story not found or unauthorized' },
