@@ -107,6 +107,19 @@ export default function OnboardingPage() {
           </div>
         </div>
       </main>
+      <footer className="w-full border-t bg-white py-8">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <div className="flex flex-col items-center space-y-2 text-sm text-gray-500">
+              <p className="italic">
+                Disclaimer: This platform is meant to help you track your journey and connect with others. It's not
+                intended for diagnosis or treatment.
+              </p>
+              <p>© {new Date().getFullYear()} neuro86. All rights reserved.</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

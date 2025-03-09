@@ -205,7 +205,7 @@ export default function TutorialPage() {
           {/* Hero Section */}
           <div className="max-w-4xl mx-auto mb-16 text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-8">
-              Your Journey Matters
+              See How Neuro86 Can Help You
             </h1>
 
             {/* Image Carousel */}
@@ -295,190 +295,7 @@ export default function TutorialPage() {
               </div>
             </div>
 
-            {/* Research Section */}
-            <section className="max-w-4xl mx-auto mb-16">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Latest Research on Meningioma
-              </h2>
-              {isLoadingResearch ? (
-                <div className="text-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
-                  <p className="text-sm text-gray-500 mt-2">
-                    Loading research...
-                  </p>
-                </div>
-              ) : researchError ? (
-                <div className="text-center py-8 bg-red-50 rounded-lg border border-red-100">
-                  <p className="text-red-600">{researchError}</p>
-                </div>
-              ) : (
-                <div>
-                  {/* Research List */}
-                  <div className="space-y-4 mb-6">
-                    {paginatedResearch.map((item) => (
-                      <div
-                        key={item.id}
-                        className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all p-6 border border-gray-100"
-                      >
-                        <div className="flex items-start space-x-4">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                              {item.title}
-                            </h3>
-                            <p className="text-gray-600 mb-3 line-clamp-2">
-                              {item.content}
-                            </p>
-                            <div className="flex items-center justify-between">
-                              <a
-                                href={item.link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-purple-600 hover:text-purple-800 transition-colors font-medium"
-                              >
-                                Read Full Paper
-                              </a>
-                              <span className="text-sm text-gray-500">
-                                {item.resource_type}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Pagination Controls */}
-                  {research.length > researchPerPage && (
-                    <div className="flex justify-center items-center space-x-4">
-                      <button
-                        onClick={handlePrevPage}
-                        disabled={currentPage === 1}
-                        className="px-4 py-2 bg-purple-50 text-purple-600 rounded-md 
-                          disabled:opacity-50 disabled:cursor-not-allowed 
-                          hover:bg-purple-100 transition-all"
-                      >
-                        Previous
-                      </button>
-                      <span className="text-gray-600">
-                        Page {currentPage} of {totalPages}
-                      </span>
-                      <button
-                        onClick={handleNextPage}
-                        disabled={currentPage === totalPages}
-                        className="px-4 py-2 bg-purple-50 text-purple-600 rounded-md 
-                          disabled:opacity-50 disabled:cursor-not-allowed 
-                          hover:bg-purple-100 transition-all"
-                      >
-                        Next
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </section>
-
-            {/* State Resources Section */}
-            <section className="max-w-4xl mx-auto mb-16">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Search for medical resources in any state
-              </h2>
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    value={state}
-                    onChange={(e) => {
-                      setState(e.target.value);
-                      if (e.target.value) {
-                        // fetchStateResources(e.target.value)
-                      } else {
-                        setStateResources([]);
-                      }
-                    }}
-                    placeholder="Search states..."
-                    className="w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
-                  />
-                  {state && (
-                    <button
-                      onClick={() => {
-                        setState("");
-                        setStateResources([]);
-                      }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
-                    >
-                      <X className="w-4 h-4 text-gray-500" />
-                    </button>
-                  )}
-                </div>
-
-                {state && (
-                  <div className="mt-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <MapPin className="w-5 h-5 text-purple-600" />
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        Medical Resources in {state}
-                      </h3>
-                    </div>
-
-                    {isLoadingResources ? (
-                      <div className="text-center py-8">
-                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
-                        <p className="text-sm text-gray-500 mt-2">
-                          Loading resources...
-                        </p>
-                      </div>
-                    ) : stateResources.length > 0 ? (
-                      <div className="space-y-6">
-                        {Object.entries(groupedResources).map(
-                          ([facilityType, resources]) => (
-                            <div key={facilityType} className="space-y-3">
-                              <div className="flex items-center gap-2">
-                                <Building2 className="w-4 h-4 text-gray-500" />
-                                <h4 className="font-medium text-gray-700">
-                                  {facilityType}
-                                </h4>
-                                <span className="text-sm text-gray-500">
-                                  ({resources.length})
-                                </span>
-                              </div>
-                              <div className="grid gap-3 sm:grid-cols-2">
-                                {resources.map((resource) => (
-                                  <div
-                                    key={resource.id}
-                                    className="p-4 border rounded-lg bg-white hover:border-purple-200 hover:bg-purple-50 transition-all duration-200 group cursor-pointer"
-                                  >
-                                    <div className="flex justify-between items-start">
-                                      <div>
-                                        <h5 className="font-medium text-gray-900 group-hover:text-purple-600">
-                                          {resource.name}
-                                        </h5>
-                                        <p className="text-sm text-gray-500 mt-1">
-                                          {resource.facility_type}
-                                        </p>
-                                      </div>
-                                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-purple-500" />
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
-                        <MapPin className="w-6 h-6 text-gray-400 mx-auto" />
-                        <p className="text-gray-500 mt-2">
-                          No medical resources found for {state}.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </section>
-
+            
             {/* Questions Section */}
             <section className="max-w-4xl mx-auto mb-16">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -502,6 +319,15 @@ export default function TutorialPage() {
                       {questions.before.map((q, i) => (
                         <li key={i} className="text-gray-600">
                           {q}
+                          <div className="mt-2 p-2 bg-gray-100 rounded-md">
+                            {/* Answer space for question {i + 1} */}
+                            <p className="text-gray-500">
+                              {i === 0 && "Surgery may carry certain concerns, but understanding them can ease your mind. Common risks might involve mild swelling, infection, or reactions to anesthesia. The good news is that complications are often rare, and many patients recover well. By talking openly with your medical team, you'll feel more informed, supported, and confident about your next steps, knowing they will guide you every step of the way."}
+                              {i === 1 && "Preparing for surgery includes a few adjustments to your diet, such as limiting heavy meals or alcohol. Your doctor may also suggest avoiding certain supplements. While it might feel restrictive, remember these steps help ensure a smoother operation. Following specific guidelines, including any fasting instructions, helps your body stay ready for a safe, successful surgery, and supports your overall well being."}
+                              {i === 2 && "Setting up your home in advance makes recovery more comfortable and less stressful. Consider creating a cozy rest area with easy access to the bathroom, kitchen, and any medical supplies. Removing tripping hazards, organizing daily essentials within reach, and asking loved ones for help can make a big difference. With some planning, you'll have a safer space that supports smooth healing."}
+                              {i === 3 && "Always share a detailed list of your medications and supplements with your doctor, so they can offer clear guidance. Certain medicines, like blood thinners or specific pain relievers, may need a brief pause before surgery. This precaution lowers the risk of complications and ensures a smoother procedure. By staying informed and working closely with your medical team, you can feel confident in your treatment plan."}
+                            </p>
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -520,6 +346,15 @@ export default function TutorialPage() {
                       {questions.after.map((q, i) => (
                         <li key={i} className="text-gray-600">
                           {q}
+                          <div className="mt-2 p-2 bg-gray-100 rounded-md">
+                            {/* Answer space for question {i + 1} */}
+                            <p className="text-gray-500">
+                              {i === 0 && "Light, gentle movements like short walks often help with blood flow and healing. Your doctor may suggest simple exercises or physical therapy to gradually rebuild strength. It's best to avoid heavy lifting or strenuous workouts until your care team says it's safe, so you can focus on healing at a comfortable pace."}
+                              {i === 1 && "Recovery time varies from person to person, so your doctor's guidance is key. Many people start with part-time hours or lighter tasks before returning to their regular schedule. Communication with your employer, along with a flexible plan, can ensure you make a gradual, balanced transition back to work."}
+                              {i === 2 && "A little discomfort or mild headaches can be normal, but more serious concerns like increased pain, swelling, or sudden changes in vision or speech are reasons to call right away. If something feels off or if you have a fever, never hesitate to reach out—timely support can give you peace of mind."}
+                              {i === 3 && "Most doctors recommend periodic imaging to keep track of your recovery and watch for any signs of regrowth. These scans might be done every few months or annually, depending on your specific case. Keeping up with these check-ups helps your medical team provide the best care and reassurance for your long-term health."}
+                            </p>
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -538,6 +373,15 @@ export default function TutorialPage() {
                       {questions.during.map((q, i) => (
                         <li key={i} className="text-gray-600">
                           {q}
+                          <div className="mt-2 p-2 bg-gray-100 rounded-md">
+                            {/* Answer space for question {i + 1} */}
+                            <p className="text-gray-500">
+                              {i === 0 && "Some mild headaches, fatigue, or slight dizziness can be common after meningioma treatment. However, any sudden changes in strength, speech, or vision should be reported right away. If you experience unusually severe pain, persistent vomiting, or fever, you should also call your doctor. Your medical team is here to guide you, so never hesitate to reach out if something feels unusual."}
+                              {i === 1 && "Fatigue is a common part of the healing process, but there are ways to make it more manageable. Start by pacing yourself and allowing for short naps or rest periods throughout the day. Balancing movement with rest can boost energy levels over time. Staying hydrated, eating nutritious foods, and talking to your doctor about vitamins or gentle exercises can also help."}
+                              {i === 2 && "A balanced, nutrient rich diet can support recovery and overall health. Many patients benefit from including lean protein sources, fruits, and vegetables in their daily meals. Staying hydrated is equally important, so make sure to drink enough water. You may want to limit sugary or heavily processed foods. If you have any special dietary needs or concerns, consider consulting with a nutrition specialist who can offer personalized advice."}
+                              {i === 3 && "While mild discomfort can be normal during recovery, it is crucial to recognize signs that need immediate attention. These might include sudden or severe headaches, confusion, trouble speaking or moving, and any rapid changes in alertness or consciousness. If you have escalating pain, unstoppable bleeding, or intense dizziness, do not hesitate to seek emergency care. Early intervention can make a significant difference in your well being."}
+                            </p>
+                          </div>
                         </li>
                       ))}
                     </ul>
