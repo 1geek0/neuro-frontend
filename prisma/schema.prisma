@@ -62,3 +62,12 @@ model state_medical_resources {
   state       String
   facility_type String
 }
+
+model HospitalFacility {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  link          String
+  associated_to String[]
+  
+  @@map("hospital_facilities")
+}

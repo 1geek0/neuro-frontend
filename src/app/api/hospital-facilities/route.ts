@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { MongoClient } from 'mongodb'
-
-const DATABASE_URL = process.env.DATABASE_URL || ""
+import prisma from '@/lib/db'
+import type { HospitalFacility } from '@prisma/client'
 
 export async function GET(request: NextRequest) {
     try {
@@ -14,19 +13,16 @@ export async function GET(request: NextRequest) {
             )
         }
 
-        const client = new MongoClient(DATABASE_URL)
-        await client.connect()
+        const facilities = await prisma.hospitalFacility.findMany({
+            where: {
+                associated_to: {
+                    has: resourceId
+                }
+            }
+        })
         
-        const db = client.db()
-        const collection = db.collection('hospital_facilities')
-        const facilities = await collection.find({
-            associated_to: { $in: [resourceId] }
-        }).toArray()
-        
-        await client.close()
-        
-        const transformedFacilities = facilities.map(facility => ({
-            id: facility._id.toString(),
+        const transformedFacilities = facilities.map((facility: HospitalFacility) => ({
+            id: facility.id,
             name: facility.name,
             link: facility.link
         }))
