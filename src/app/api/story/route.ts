@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     const { story } = body;
 
     if (!story) {
@@ -65,9 +65,37 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+    
+    const response = await createStory(user.id, title, story, timelineJson, embedding)
+
+    const stories = await prisma.story.findMany({
+      where: { userId: user.id },
+      select: { rawText: true },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    if (stories.length === 0) {
+      return NextResponse.json({ timeline: [] });
+    }
+
+    // Combine all stories
+    const combinedText = stories.map(s => s.rawText).join('\n\n');
+
+    // Generate new timeline
+    const userTimelineJson = await processStoryToTimeline(combinedText);
+
+    // Validate timeline structure
+    if (!userTimelineJson?.events || !Array.isArray(userTimelineJson.events)) {
+      throw new Error('Invalid timeline format returned from processing');
+    }
+
+    // Update user with new timeline
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { timelineJson : userTimelineJson }
+    });
 
     // Create story in database
-    const response = await createStory(user.id, title, story, timelineJson, embedding)
 
     if (!response) {
       throw new Error('Failed to create story')
