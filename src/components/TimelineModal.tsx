@@ -122,7 +122,7 @@ export function TimelineModal({ isOpen, onClose }: TimelineModalProps) {
                                             </div>} */}
                                         </div>
                                         {index < events.length - 1 && (
-                                            <div className="absolute left-[50%] -translate-x-1/2 top-[100%] w-0.5 bg-gray-200 h-full" />
+                                            <div className="absolute left-[50%] -translate-x-1/2 top-[100%] w-0.5 bg-gray-200 h-2/5" />
                                         )}
                                     </div>
                                 </div>

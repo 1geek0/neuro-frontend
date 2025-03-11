@@ -61,4 +61,62 @@ export async function PUT(
       { status: 500 }
     );
   }
-} 
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const resolvedParams = await params;
+    const auth0Id = request.headers.get('x-auth-user-id');
+    if (!auth0Id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { auth0Id }
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    const deletedStory = await prisma.story.deleteMany({
+      where: {
+        id: resolvedParams.id,
+        userId: user.id
+      }
+    });
+
+    const updateUser = await prisma.user.update({
+      where : { auth0Id },
+      data : {timelineJson : null}
+    })
+
+    console.log("Deleted Story.", deletedStory)
+    console.log("Updated User.", updateUser);
+    
+
+    if (!deletedStory.count) {
+      return NextResponse.json(
+        { error: 'Story not found or unauthorized' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting story:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete story' },
+      { status: 500 }
+    );
+  }
+}
