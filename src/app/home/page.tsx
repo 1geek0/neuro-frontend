@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 // import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Modal } from '@/components/Modal'
 import { useAuth0 } from '@auth0/auth0-react'
-import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X, Brain, ArrowRight, MicroscopeIcon, PanelsTopLeft, Users, UsersRound, Hospital } from 'lucide-react'
+import { LogOut, Loader2, MapPin, Building2, ChevronRight, Search, X, Brain, ArrowRight, MicroscopeIcon, PanelsTopLeft, Users, UsersRound, Hospital, ExternalLink } from 'lucide-react'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch'
 import { demoSimilarStories } from '@/Demo/demoSimilarStories'
@@ -36,6 +36,13 @@ interface StateResource {
     name: string
     state: string
     facility_type: string
+    associated_hospital_facilities?: HospitalFacility[]
+}
+
+interface HospitalFacility {
+    id: string
+    name: string
+    link: string
 }
 
 export default function HomePage() {
@@ -54,6 +61,9 @@ export default function HomePage() {
     const [isLoadingSSO, setIsLoadingSSO] = useState(false);
     const [demoMode, setDemoMode] = useState<Boolean>(false);
     const { loginWithPopup } = useAuth0()
+    const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null)
+    const [hospitalFacilities, setHospitalFacilities] = useState<HospitalFacility[]>([])
+    const [isLoadingFacilities, setIsLoadingFacilities] = useState<boolean>(false)
     
 
     useEffect(() => {
@@ -282,6 +292,22 @@ export default function HomePage() {
         acc[type].push(resource)
         return acc
     }, {} as Record<string, StateResource[]>)
+
+    // Function to fetch hospital facilities for a resource
+    const fetchHospitalFacilities = async (resourceId: string) => {
+        setIsLoadingFacilities(true)
+        try {
+            const response = await fetch(`/api/hospital-facilities?resourceId=${resourceId}`)
+            if (!response.ok) throw new Error('Failed to fetch hospital facilities')
+            const data = await response.json()
+            setHospitalFacilities(data)
+        } catch (error) {
+            console.error('Error fetching hospital facilities:', error)
+            setHospitalFacilities([])
+        } finally {
+            setIsLoadingFacilities(false)
+        }
+    }
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-white to-purple-50">
@@ -569,6 +595,13 @@ export default function HomePage() {
                                                             <div
                                                                 key={resource.id}
                                                                 className="p-4 border border-gray-200 rounded-lg bg-white hover:border-blue-200 hover:bg-blue-50 transition-colors duration-200 group cursor-pointer"
+                                                                onClick={() => {
+                                                                    setSelectedResourceId(prevId => 
+                                                                        prevId === resource.id ? null : resource.id);
+                                                                    if (selectedResourceId !== resource.id) {
+                                                                        fetchHospitalFacilities(resource.id);
+                                                                    }
+                                                                }}
                                                             >
                                                                 <div className="flex justify-between items-start">
                                                                     <div>
@@ -579,8 +612,39 @@ export default function HomePage() {
                                                                             {resource.facility_type}
                                                                         </p>
                                                                     </div>
-                                                                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
+                                                                    <ChevronRight className={`w-4 h-4 text-gray-400 group-hover:text-blue-500 transform transition-transform ${selectedResourceId === resource.id ? 'rotate-90' : ''}`} />
                                                                 </div>
+                                                                
+                                                                {/* Display associated hospital facilities if this resource is selected */}
+                                                                {selectedResourceId === resource.id && (
+                                                                    <div className="mt-3 pt-3 border-t border-gray-100">
+                                                                        <p className="text-xs font-medium text-gray-600 mb-2">Nearby Accommodations</p>
+                                                                        
+                                                                        {isLoadingFacilities ? (
+                                                                            <div className="flex justify-center py-2">
+                                                                                <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                                                                            </div>
+                                                                        ) : hospitalFacilities.length > 0 ? (
+                                                                            <div className="space-y-2 max-h-36 overflow-y-auto">
+                                                                                {hospitalFacilities.map(facility => (
+                                                                                    <a 
+                                                                                        key={facility.id} 
+                                                                                        href={facility.link}
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                        className="flex items-center gap-2 text-sm text-gray-700 hover:text-blue-600 transition-colors"
+                                                                                        onClick={(e) => e.stopPropagation()}
+                                                                                    >
+                                                                                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                                                                                        <span className="line-clamp-1">{facility.name}</span>
+                                                                                    </a>
+                                                                                ))}
+                                                                            </div>
+                                                                        ) : (
+                                                                            <p className="text-sm text-gray-500 py-2">No nearby accommodations found.</p>
+                                                                        )}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         ))}
                                                     </div>
