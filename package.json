@@ -22,6 +22,7 @@
     "framer-motion": "^12.4.1",
     "jose": "^5.9.6",
     "lucide-react": "^0.454.0",
+    "mongodb": "^6.14.2",
     "next": "^15.1.6",
     "openai": "^4.71.1",
     "prisma": "^5.22.0",
