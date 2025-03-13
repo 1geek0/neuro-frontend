@@ -43,6 +43,7 @@ interface HospitalFacility {
     id: string
     name: string
     link: string
+    type: string
 }
 
 export default function HomePage() {
@@ -307,6 +308,16 @@ export default function HomePage() {
         } finally {
             setIsLoadingFacilities(false)
         }
+    }
+
+    function groupFacilitiesByType(facilities: HospitalFacility[]) {
+        return facilities.reduce((acc, facility) => {
+            if (!acc[facility.type]) {
+                acc[facility.type] = [];
+            }
+            acc[facility.type].push(facility);
+            return acc;
+        }, {} as Record<string, HospitalFacility[]>);
     }
 
     return (
@@ -618,7 +629,7 @@ export default function HomePage() {
                                                                 {/* Display associated hospital facilities if this resource is selected */}
                                                                 {selectedResourceId === resource.id && (
                                                                     <div className="mt-3 pt-3 border-t border-gray-100">
-                                                                        <p className="text-xs font-medium text-gray-600 mb-2">Nearby Accommodations</p>
+                                                                        <p className="text-xs font-medium text-gray-600 mb-2">Useful Resources</p>
                                                                         
                                                                         {isLoadingFacilities ? (
                                                                             <div className="flex justify-center py-2">
@@ -626,22 +637,27 @@ export default function HomePage() {
                                                                             </div>
                                                                         ) : hospitalFacilities.length > 0 ? (
                                                                             <div className="space-y-2 max-h-36 overflow-y-auto">
-                                                                                {hospitalFacilities.map(facility => (
-                                                                                    <a 
-                                                                                        key={facility.id} 
-                                                                                        href={facility.link}
-                                                                                        target="_blank"
-                                                                                        rel="noopener noreferrer"
-                                                                                        className="flex items-center gap-2 text-sm text-gray-700 hover:text-blue-600 transition-colors"
-                                                                                        onClick={(e) => e.stopPropagation()}
-                                                                                    >
-                                                                                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                                                                                        <span className="line-clamp-1">{facility.name}</span>
-                                                                                    </a>
+                                                                                {Object.entries(groupFacilitiesByType(hospitalFacilities)).map(([type, facilities]) => (
+                                                                                    <div key={type}>
+                                                                                        <h4 className="text-sm font-semibold text-gray-700 mb-1">{type}</h4>
+                                                                                        {facilities.map(facility => (
+                                                                                            <a 
+                                                                                                key={facility.id} 
+                                                                                                href={facility.link}
+                                                                                                target="_blank"
+                                                                                                rel="noopener noreferrer"
+                                                                                                className="flex items-center gap-2 text-sm text-gray-700 hover:text-blue-600 transition-colors"
+                                                                                                onClick={(e) => e.stopPropagation()}
+                                                                                            >
+                                                                                                <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                                                                                                <span className="line-clamp-1">{facility.name}</span>
+                                                                                            </a>
+                                                                                        ))}
+                                                                                    </div>
                                                                                 ))}
                                                                             </div>
                                                                         ) : (
-                                                                            <p className="text-sm text-gray-500 py-2">No nearby accommodations found.</p>
+                                                                            <p className="text-sm text-gray-500 py-2">No useful resources found.</p>
                                                                         )}
                                                                     </div>
                                                                 )}
