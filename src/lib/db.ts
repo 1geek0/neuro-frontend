@@ -97,40 +97,40 @@ export async function findSimilarStories(embedding: number[], limit: number = 5)
 }
 
 async function updateTimelines() {
-    try {
-        const oldStories = await prisma.story.findMany({
-            select: {
-                id: true,
-                rawText: true
-            }
-        })
+  try {
+    const oldStories = await prisma.story.findMany({
+      select: {
+        id: true,
+        rawText: true
+      }
+    })
 
-        console.log(`Found ${oldStories.length} stories to update.`);
+    console.log(`Found ${oldStories.length} stories to update.`);
 
 
-        for (const story of oldStories) {
-            const { id, rawText } = story;
+    for (const story of oldStories) {
+      const { id, rawText } = story;
 
-            const updatedTimeline = await processStoryToTimeline(rawText);
+      const updatedTimeline = await processStoryToTimeline(rawText);
 
-            await prisma.story.update({
-                where: { id },
-                data: {
-                    timelineJson: updatedTimeline
-                }
-            })
-
-            console.log(`Updated story ID: ${id}`);
+      await prisma.story.update({
+        where: { id },
+        data: {
+          timelineJson: updatedTimeline
         }
+      })
 
-        console.log('All stories updated successfully.');
+      console.log(`Updated story ID: ${id}`);
     }
-    catch (error) {
-        console.error('Error updating stories:', error);
-    }
-    finally {
-        await prisma.$disconnect();
-    }
+
+    console.log('All stories updated successfully.');
+  }
+  catch (error) {
+    console.error('Error updating stories:', error);
+  }
+  finally {
+    await prisma.$disconnect();
+  }
 }
 
 
